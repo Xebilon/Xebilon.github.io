@@ -23,7 +23,7 @@
         <!-- Button to fetch CSV from GitHub -->
         <!-- <button onclick="fetchCSVFromGitHub()">Fetch CSV from GitHub</button> -->
     </center>
-
+<div id="copyNotification" class="copy-notification">URL Copied!</div>
     <div id="tableContainer">
         <table id="dataTable" style="display: none;"></table>
     </div>
@@ -129,25 +129,25 @@ rowHTML += copyLinkHTML;
     dataTable.style.display = filteredData.length > 0 ? 'table' : 'none'; // Show table if data found, hide otherwise
 }
 
-// Copy Script
+
+// Function to copy text to clipboard
 function copyToClipboard(text) {
-    // Create a temporary input element
-    var input = document.createElement('input');
-    input.style.position = 'fixed';
-    input.style.opacity = 0;
-    input.value = text;
-    document.body.appendChild(input);
+    navigator.clipboard.writeText(text)
+        .then(function() {
+            // Show notification window
+            var copyNotification = document.getElementById('copyNotification');
+            copyNotification.style.display = 'block';
 
-    // Select the text and copy it to the clipboard
-    input.select();
-    document.execCommand('copy');
-
-    // Remove the temporary input element
-    document.body.removeChild(input);
-
-    // Provide feedback to the user
-    alert('URL copied to clipboard: ' + text + '\nPlease paste it into your media player (e.g., VLC).');
+            // Hide notification window after 2 seconds
+            setTimeout(function() {
+                copyNotification.style.display = 'none';
+            }, 2000);
+        })
+        .catch(function(err) {
+            console.error('Error copying text to clipboard: ', err);
+        });
 }
+
 
 
         // Fetch CSV data from GitHub when the page loads
