@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 2</h1>
+    <h1>Database</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -131,21 +131,29 @@ rowHTML += copyLinkHTML;
 
 
 // Function to copy text to clipboard
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text)
-        .then(function() {
-            // Show notification window
-            var copyNotification = document.getElementById('copyNotification');
-            copyNotification.style.display = 'block';
+function copyToClipboard(url, event) {
+    var textarea = document.createElement('textarea');
+    textarea.value = url;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
 
-            // Hide notification window after 2 seconds
-            setTimeout(function() {
-                copyNotification.style.display = 'none';
-            }, 2000);
-        })
-        .catch(function(err) {
-            console.error('Error copying text to clipboard: ', err);
-        });
+    // Create and position the notification window
+    var notification = document.createElement('div');
+    notification.textContent = 'URL copied! Paste it in VLC.';
+    notification.className = 'copy-notification';
+
+    // Position the notification near the mouse pointer or the clicked link
+    notification.style.top = (event.pageY || event.clientY + document.documentElement.scrollTop) + 'px';
+    notification.style.left = (event.pageX || event.clientX + document.documentElement.scrollLeft) + 'px';
+
+    document.body.appendChild(notification);
+
+    // Remove the notification after a delay
+    setTimeout(function() {
+        document.body.removeChild(notification);
+    }, 2000);
 }
 
 
