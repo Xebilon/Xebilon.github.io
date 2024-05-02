@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database</title>
+    <title>Database 2</title>
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
@@ -78,7 +78,7 @@ function updateTable() {
             var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 
          // Create a hyperlink to copy the stream URL to clipboard
-var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\')">Copy</a></td>';
+var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
 rowHTML += copyLinkHTML;
 
 
@@ -116,7 +116,7 @@ function filter() {
         var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 
       // Create a hyperlink to copy the stream URL to clipboard
-var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\')">Copy</a></td>';
+var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
 rowHTML += copyLinkHTML;
 
 
