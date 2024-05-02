@@ -75,22 +75,24 @@
                     rowHTML += '<td>' + row.ChannelName + '</td>';
 
                     // Replace XXX and YYY in the Stream URL with user input values
-                    var streamURL = row.StreamURL.replace('XXX', inputXXX);
-                    streamURL = streamURL.replace('YYY', inputYYY);
-                    rowHTML += '<td>' + streamURL + '</td>';
+            var streamURL = row.StreamURL.replace('XXX', inputXXX);
+            streamURL = streamURL.replace('YYY', inputYYY);
 
-                    rowHTML += '</tr>';
-                    tableHTML += rowHTML;
-                });
-                dataTable.innerHTML = tableHTML;
-                
-                // Show table
-                dataTable.style.display = 'table'; // or 'block' if you prefer
-            } else {
-                // Clear the table if input values are empty
-                document.getElementById('dataTable').innerHTML = '';
-            }
-        }
+            // Generate hyperlink for the Stream URL with custom protocol handler
+            rowHTML += '<td><a href="vlc://' + streamURL + '">Play</a></td>';
+
+            rowHTML += '</tr>';
+            tableHTML += rowHTML;
+        });
+        dataTable.innerHTML = tableHTML;
+        
+        // Show table
+        dataTable.style.display = 'table'; // or 'block' if you prefer
+    } else {
+        // Clear the table if input values are empty
+        document.getElementById('dataTable').innerHTML = '';
+    }
+}
 
         // Function to filter data
         function filter() {
