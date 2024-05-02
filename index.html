@@ -6,21 +6,21 @@
     <title>CSV Database</title>
 </head>
 <body>
-<link rel="stylesheet" href="style.css">
-
     <h1>CSV Database</h1>
-    <center><button id="filePicker">Choose CSV File</button> <!-- Button for selecting CSV file -->
-    <br>
-	<input type="text" id="searchInput" placeholder="Chanel name...">
-    
-    <button onclick="filter()">Filter</button>
+    <center>
+        <input type="text" id="searchInput" placeholder="Chanel name...">
+        <button onclick="filter()">Filter</button>
 
-    <!-- Input fields for XXX and YYY -->
-    <label for="inputXXX">Username:</label>
-    <input type="text" id="inputXXX" placeholder="Enter Username..." oninput="updateTable()">
-    <label for="inputYYY">Password:</label>
-    <input type="text" id="inputYYY" placeholder="Enter Password..." oninput="updateTable()">
-</center>
+        <!-- Input fields for XXX and YYY -->
+        <label for="inputXXX">Username:</label>
+        <input type="text" id="inputXXX" placeholder="Enter Username..." oninput="updateTable()">
+        <label for="inputYYY">Password:</label>
+        <input type="text" id="inputYYY" placeholder="Enter Password..." oninput="updateTable()">
+
+        <!-- Button to fetch CSV from GitHub -->
+        <button onclick="fetchCSVFromGitHub()">Fetch CSV from GitHub</button>
+    </center>
+
     <div id="tableContainer">
         <table id="dataTable" style="display: none;"></table>
     </div>
@@ -28,65 +28,66 @@
     <script>
         var csvData = [];
 
-        // Function to fetch CSV data
-   // Function to fetch CSV data
-function fetchCSVData() {
-    fetch('Bok2.csv') // Fetch the CSV file directly from the same folder
-        .then(response => response.text())
-        .then(data => {
-            // Parse CSV data
-            const rows = data.split('\n').map(row => row.split(','));
+        // Function to fetch CSV data from GitHub
+        function fetchCSVFromGitHub() {
+            fetch('https://raw.githubusercontent.com/Xebilon/Xebilon.github.io/main/Bok2.csv')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(csvText => {
+                    csvData = csvText.split('\n').map(row => row.split(','));
 
-            // Convert CSV data to array of objects
-            csvData = rows.slice(1).map(row => {
-                return {
-                    Category: row[1],
-                    ChannelName: row[2],
-                    StreamURL: row[8]
-                };
-            });
+                    // Convert CSV data to array of objects
+                    csvData = csvData.slice(1).map(row => {
+                        return {
+                            Category: row[1],
+                            ChannelName: row[2],
+                            StreamURL: row[8]
+                        };
+                    });
 
-            // Populate table with rows
-            updateTable();
-        })
-        .catch(error => console.error('Error fetching CSV data:', error));
-}
+                    // Populate table with rows as they are loaded
+                    updateTable();
+                })
+                .catch(error => {
+                    console.error('Error fetching CSV data:', error);
+                });
+        }
+
         // Function to update table
-function updateTable() {
-    var inputXXX = document.getElementById('inputXXX').value;
-    var inputYYY = document.getElementById('inputYYY').value;
+        function updateTable() {
+            var inputXXX = document.getElementById('inputXXX').value;
+            var inputYYY = document.getElementById('inputYYY').value;
 
-    // Check if input values are not empty
-    if (inputXXX.trim() !== '' && inputYYY.trim() !== '') {
-        var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream URL</th></tr>';
-        var dataTable = document.getElementById('dataTable');
-        csvData.forEach(row => {
-            var rowHTML = '<tr>';
-            rowHTML += '<td>' + row.Category + '</td>';
-            rowHTML += '<td>' + row.ChannelName + '</td>';
+            // Check if input values are not empty
+            if (inputXXX.trim() !== '' && inputYYY.trim() !== '') {
+                var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream URL</th></tr>';
+                var dataTable = document.getElementById('dataTable');
+                csvData.forEach(row => {
+                    var rowHTML = '<tr>';
+                    rowHTML += '<td>' + row.Category + '</td>';
+                    rowHTML += '<td>' + row.ChannelName + '</td>';
 
-            // Check if StreamURL is defined before performing replace operation
-            if (row.StreamURL) {
-                // Replace XXX and YYY in the Stream URL with user input values
-                var streamURL = row.StreamURL.replace('XXX', inputXXX);
-                streamURL = streamURL.replace('YYY', inputYYY);
-                rowHTML += '<td>' + streamURL + '</td>';
+                    // Replace XXX and YYY in the Stream URL with user input values
+                    var streamURL = row.StreamURL.replace('XXX', inputXXX);
+                    streamURL = streamURL.replace('YYY', inputYYY);
+                    rowHTML += '<td>' + streamURL + '</td>';
+
+                    rowHTML += '</tr>';
+                    tableHTML += rowHTML;
+                });
+                dataTable.innerHTML = tableHTML;
+                
+                // Show table
+                dataTable.style.display = 'table'; // or 'block' if you prefer
             } else {
-                rowHTML += '<td></td>'; // If StreamURL is undefined, leave the cell empty
+                // Clear the table if input values are empty
+                document.getElementById('dataTable').innerHTML = '';
             }
-
-            rowHTML += '</tr>';
-            tableHTML += rowHTML;
-        });
-        dataTable.innerHTML = tableHTML;
-        
-        // Show table
-        dataTable.style.display = 'table'; // or 'block' if you prefer
-    } else {
-        // Clear the table if input values are empty
-        document.getElementById('dataTable').innerHTML = '';
-    }
-}
+        }
 
         // Function to filter data
         function filter() {
@@ -116,27 +117,8 @@ function updateTable() {
             dataTable.style.display = filteredData.length > 0 ? 'table' : 'none'; // Show table if data found, hide otherwise
         }
 
-// Event listener for file picker button
-document.getElementById('filePicker').addEventListener('click', function() {
-    console.log("File picker button clicked");
-    var input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.csv';
-
-    input.onchange = function(e) {
-        console.log("File selected:", e.target.files[0]);
-        var file = e.target.files[0];
-        fetchCSVData(file);
-    };
-
-    console.log("Triggering input click event");
-    input.click();
-});
-
-        // Fetch CSV data when the page loads
-        window.onload = function() {
-            // No need to call fetchCSVData() here, we wait for the user to select a file first
-        };
+        // Fetch CSV data from GitHub when the page loads
+        window.onload = fetchCSVFromGitHub;
     </script>
 </body>
 </html>
