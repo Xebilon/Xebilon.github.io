@@ -67,7 +67,7 @@ function updateTable() {
 
     // Check if input values are not empty
     if (inputXXX.trim() !== '' && inputYYY.trim() !== '') {
-        var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Play</th></tr>';
+        var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream URL</th></tr>';
         var dataTable = document.getElementById('dataTable');
         csvData.forEach(row => {
             var rowHTML = '<tr>';
@@ -103,7 +103,7 @@ function filter() {
         return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
     });
 
-    var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Play</th></tr>';
+    var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream URL</th></tr>';
     for (var i = 0; i < filteredData.length; i++) {
         var row = filteredData[i];
         var rowHTML = '<tr>';
