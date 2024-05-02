@@ -60,7 +60,7 @@
                 });
         }
 
-       // Function to update table
+      // Function to update table
 function updateTable() {
     var inputXXX = document.getElementById('inputXXX').value;
     var inputYYY = document.getElementById('inputYYY').value;
@@ -74,8 +74,11 @@ function updateTable() {
             rowHTML += '<td>' + row.Category + '</td>';
             rowHTML += '<td>' + row.ChannelName + '</td>';
 
+            // Replace XXX and YYY in the Stream URL with user input values
+            var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
+
             // Create a hyperlink to play the stream in a new window
-            var playLinkHTML = '<td><a href="' + row.StreamURL + '" target="_blank">Play</a></td>';
+            var playLinkHTML = '<td><a href="' + streamURL + '" target="_blank">Play</a></td>';
             rowHTML += playLinkHTML;
 
             rowHTML += '</tr>';
@@ -102,21 +105,28 @@ function filter() {
     var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Play</th></tr>';
     for (var i = 0; i < filteredData.length; i++) {
         var row = filteredData[i];
-        tableHTML += '<tr>';
-        tableHTML += '<td>' + row.Category + '</td>';
-        tableHTML += '<td>' + row.ChannelName + '</td>';
+        var rowHTML = '<tr>';
+        rowHTML += '<td>' + row.Category + '</td>';
+        rowHTML += '<td>' + row.ChannelName + '</td>';
+
+        // Replace XXX and YYY in the Stream URL with user input values
+        var inputXXX = document.getElementById('inputXXX').value;
+        var inputYYY = document.getElementById('inputYYY').value;
+        var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 
         // Create a hyperlink to play the stream in a new window
-        var playLinkHTML = '<td><a href="' + row.StreamURL + '" target="_blank">Play</a></td>';
-        tableHTML += playLinkHTML;
+        var playLinkHTML = '<td><a href="' + streamURL + '" target="_blank">Play</a></td>';
+        rowHTML += playLinkHTML;
 
-        tableHTML += '</tr>';
+        rowHTML += '</tr>';
+        tableHTML += rowHTML;
     }
 
     var dataTable = document.getElementById('dataTable');
     dataTable.innerHTML = tableHTML;
     dataTable.style.display = filteredData.length > 0 ? 'table' : 'none'; // Show table if data found, hide otherwise
 }
+
 
 
         // Fetch CSV data from GitHub when the page loads
