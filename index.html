@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 5</h1>
+    <h1>Database 6</h1>
     <center>
 
          <!-- Input fields for XXX and YYY -->
@@ -77,9 +77,10 @@ function updateTable() {
             // Replace XXX and YYY in the Stream URL with user input values
             var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 
-            // Create a hyperlink to play the stream in a new window
-            var playLinkHTML = '<td><a href="' + streamURL + '" target="_blank">Play</a></td>';
-            rowHTML += playLinkHTML;
+         // Create a hyperlink to copy the stream URL to clipboard
+var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\')">Copy</a></td>';
+rowHTML += copyLinkHTML;
+
 
             rowHTML += '</tr>';
             tableHTML += rowHTML;
@@ -114,9 +115,10 @@ function filter() {
         var inputYYY = document.getElementById('inputYYY').value;
         var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 
-        // Create a hyperlink to play the stream in a new window
-        var playLinkHTML = '<td><a href="' + streamURL + '" target="_blank">Play</a></td>';
-        rowHTML += playLinkHTML;
+      // Create a hyperlink to copy the stream URL to clipboard
+var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\')">Copy</a></td>';
+rowHTML += copyLinkHTML;
+
 
         rowHTML += '</tr>';
         tableHTML += rowHTML;
@@ -127,6 +129,25 @@ function filter() {
     dataTable.style.display = filteredData.length > 0 ? 'table' : 'none'; // Show table if data found, hide otherwise
 }
 
+// Copy Script
+function copyToClipboard(text) {
+    // Create a temporary input element
+    var input = document.createElement('input');
+    input.style.position = 'fixed';
+    input.style.opacity = 0;
+    input.value = text;
+    document.body.appendChild(input);
+
+    // Select the text and copy it to the clipboard
+    input.select();
+    document.execCommand('copy');
+
+    // Remove the temporary input element
+    document.body.removeChild(input);
+
+    // Provide feedback to the user
+    alert('URL copied to clipboard: ' + text + '\nPlease paste it into your media player (e.g., VLC).');
+}
 
 
         // Fetch CSV data from GitHub when the page loads
