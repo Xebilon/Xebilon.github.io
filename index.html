@@ -52,34 +52,41 @@ function fetchCSVData() {
         .catch(error => console.error('Error fetching CSV data:', error));
 }
         // Function to update table
-        function updateTable() {
-            var inputXXX = document.getElementById('inputXXX').value;
-            var inputYYY = document.getElementById('inputYYY').value;
+function updateTable() {
+    var inputXXX = document.getElementById('inputXXX').value;
+    var inputYYY = document.getElementById('inputYYY').value;
 
-            // Check if input values are not empty
-            if (inputXXX.trim() !== '' && inputYYY.trim() !== '') {
-                var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream URL</th></tr>';
-                var dataTable = document.getElementById('dataTable');
-                csvData.forEach(row => {
-                    var rowHTML = '<tr>';
-                    rowHTML += '<td>' + row.Category + '</td>';
-                    rowHTML += '<td>' + row.ChannelName + '</td>';
+    // Check if input values are not empty
+    if (inputXXX.trim() !== '' && inputYYY.trim() !== '') {
+        var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream URL</th></tr>';
+        var dataTable = document.getElementById('dataTable');
+        csvData.forEach(row => {
+            var rowHTML = '<tr>';
+            rowHTML += '<td>' + row.Category + '</td>';
+            rowHTML += '<td>' + row.ChannelName + '</td>';
 
-                    // Replace XXX and YYY in the Stream URL with user input values
-                    var streamURL = row.StreamURL.replace('XXX', inputXXX);
-                    streamURL = streamURL.replace('YYY', inputYYY);
-                    rowHTML += '<td>' + streamURL + '</td>';
-
-                    rowHTML += '</tr>';
-                    tableHTML += rowHTML;
-                });
-                dataTable.innerHTML = tableHTML;
-                dataTable.style.display = 'table'; // Show table
+            // Check if StreamURL is defined before performing replace operation
+            if (row.StreamURL) {
+                // Replace XXX and YYY in the Stream URL with user input values
+                var streamURL = row.StreamURL.replace('XXX', inputXXX);
+                streamURL = streamURL.replace('YYY', inputYYY);
+                rowHTML += '<td>' + streamURL + '</td>';
             } else {
-                // Clear the table if input values are empty
-                document.getElementById('dataTable').innerHTML = '';
+                rowHTML += '<td></td>'; // If StreamURL is undefined, leave the cell empty
             }
-        }
+
+            rowHTML += '</tr>';
+            tableHTML += rowHTML;
+        });
+        dataTable.innerHTML = tableHTML;
+        
+        // Show table
+        dataTable.style.display = 'table'; // or 'block' if you prefer
+    } else {
+        // Clear the table if input values are empty
+        document.getElementById('dataTable').innerHTML = '';
+    }
+}
 
         // Function to filter data
         function filter() {
