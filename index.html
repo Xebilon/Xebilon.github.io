@@ -94,33 +94,35 @@
     }
 }
 
-        // Function to filter data
-        function filter() {
-            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            var filteredData = csvData.filter(row => {
-                // Check if the row has the 'Channel Name' property and if it includes the search term
-                return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
-            });
+      // Function to filter data
+function filter() {
+    var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    var filteredData = csvData.filter(row => {
+        // Check if the row has the 'Channel Name' property and if it includes the search term
+        return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
+    });
 
-            var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream URL</th></tr>';
-            for (var i = 0; i < filteredData.length; i++) {
-                var row = filteredData[i];
-                tableHTML += '<tr>';
-                tableHTML += '<td>' + row.Category + '</td>';
-                tableHTML += '<td>' + row.ChannelName + '</td>';
+    var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream</th></tr>';
+    for (var i = 0; i < filteredData.length; i++) {
+        var row = filteredData[i];
+        tableHTML += '<tr>';
+        tableHTML += '<td>' + row.Category + '</td>';
+        tableHTML += '<td>' + row.ChannelName + '</td>';
 
-                // Replace XXX and YYY in the Stream URL with user input values
-                var streamURL = row.StreamURL.replace('XXX', document.getElementById('inputXXX').value);
-                streamURL = streamURL.replace('YYY', document.getElementById('inputYYY').value);
-                tableHTML += '<td>' + streamURL + '</td>';
+        // Replace XXX and YYY in the Stream URL with user input values
+        var streamURL = row.StreamURL.replace('XXX', document.getElementById('inputXXX').value);
+        streamURL = streamURL.replace('YYY', document.getElementById('inputYYY').value);
 
-                tableHTML += '</tr>';
-            }
+        // Generate hyperlink for the Stream URL with custom protocol handler
+        tableHTML += '<td><a href="vlc://' + streamURL + '">Play</a></td>';
 
-            var dataTable = document.getElementById('dataTable');
-            dataTable.innerHTML = tableHTML;
-            dataTable.style.display = filteredData.length > 0 ? 'table' : 'none'; // Show table if data found, hide otherwise
-        }
+        tableHTML += '</tr>';
+    }
+
+    var dataTable = document.getElementById('dataTable');
+    dataTable.innerHTML = tableHTML;
+    dataTable.style.display = filteredData.length > 0 ? 'table' : 'none'; // Show table if data found, hide otherwise
+}
 
         // Fetch CSV data from GitHub when the page loads
         window.onload = fetchCSVFromGitHub;
