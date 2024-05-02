@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV Database</title>
+    <title>Database</title>
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>CSV Database</h1>
+    <h1>Database</h1>
     <center>
-        <input type="text" id="searchInput" placeholder="Chanel name...">
-        <button onclick="filter()">Filter</button>
 
-        <!-- Input fields for XXX and YYY -->
+         <!-- Input fields for XXX and YYY -->
         <label for="inputXXX">Username:</label>
         <input type="text" id="inputXXX" placeholder="Enter Username..." oninput="updateTable()">
         <label for="inputYYY">Password:</label>
         <input type="text" id="inputYYY" placeholder="Enter Password..." oninput="updateTable()">
+<br><br>
+        <input type="text" id="searchInput" placeholder="Chanel name...">
+        <button onclick="filter()">Filter</button>
 
+       
         <!-- Button to fetch CSV from GitHub -->
         <!-- <button onclick="fetchCSVFromGitHub()">Fetch CSV from GitHub</button> -->
     </center>
