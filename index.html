@@ -167,5 +167,158 @@ function copyToClipboard(url, event) {
         // Fetch CSV data from GitHub when the page loads
         window.onload = fetchCSVFromGitHub;
     </script>
+
+    
+<style>
+    /* CSS styles for video player */
+    #videoPlayer {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+
+<!-- Video player container -->
+<div id="videoPlayer">
+    <video id="videoElement" controls style="width: 100%;">
+        Your browser does not support the video tag.
+    </video>
+    <!-- Controls -->
+    <div class="controls">
+        <button id="playPauseButton">Play</button>
+        <input id="volumeControl" type="range" min="0" max="1" step="0.1" value="1">
+        <button id="fullscreenButton">Fullscreen</button>
+        <button id="pipButton">PIP</button>
+        <select id="resolutionSelect">
+            <!-- Options will be dynamically added here -->
+        </select>
+        <select id="subtitlesSelect">
+            <!-- Options will be dynamically added here -->
+        </select>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var videoElement = document.getElementById("videoElement");
+    var playPauseButton = document.getElementById("playPauseButton");
+    var volumeControl = document.getElementById("volumeControl");
+    var fullscreenButton = document.getElementById("fullscreenButton");
+    var pipButton = document.getElementById("pipButton");
+    var resolutionSelect = document.getElementById("resolutionSelect");
+    var subtitlesSelect = document.getElementById("subtitlesSelect");
+
+    // Play/Pause button functionality
+    playPauseButton.addEventListener("click", function() {
+        if (videoElement.paused || videoElement.ended) {
+            videoElement.play();
+            playPauseButton.textContent = "Pause";
+        } else {
+            videoElement.pause();
+            playPauseButton.textContent = "Play";
+        }
+    });
+
+    // Volume control functionality
+    volumeControl.addEventListener("input", function() {
+        videoElement.volume = this.value;
+    });
+
+    // Fullscreen button functionality
+    fullscreenButton.addEventListener("click", function() {
+        if (videoElement.requestFullscreen) {
+            videoElement.requestFullscreen();
+        } else if (videoElement.mozRequestFullScreen) {
+            videoElement.mozRequestFullScreen();
+        } else if (videoElement.webkitRequestFullscreen) {
+            videoElement.webkitRequestFullscreen();
+        } else if (videoElement.msRequestFullscreen) {
+            videoElement.msRequestFullscreen();
+        }
+    });
+
+    // Picture-in-Picture mode functionality
+    pipButton.addEventListener("click", function() {
+        if (videoElement !== document.pictureInPictureElement) {
+            videoElement.requestPictureInPicture();
+        } else {
+            document.exitPictureInPicture();
+        }
+    });
+
+    // Parse video URL to determine available resolutions and subtitles
+    var videoUrl = videoElement.src;
+    var resolutions = []; // Placeholder for available resolutions
+    var subtitles = []; // Placeholder for available subtitles
+
+    // Update resolution options
+    resolutions.forEach(function(resolution) {
+        var option = document.createElement("option");
+        option.value = resolution;
+        option.textContent = resolution + "p";
+        resolutionSelect.appendChild(option);
+    });
+
+    // Update subtitles options
+    subtitles.forEach(function(subtitle) {
+        var option = document.createElement("option");
+        option.value = subtitle.src;
+        option.textContent = subtitle.label;
+        subtitlesSelect.appendChild(option);
+    });
+
+    // Set default resolution and subtitles
+    var defaultResolution = "720"; // Example: Default resolution is 720p
+    var defaultSubtitleSrc = ""; // Example: Default subtitle is empty
+
+    // Change video source based on default resolution
+    videoElement.src = videoUrl.replace(/_\d+p/, "_" + defaultResolution + "p");
+
+    // Change subtitle track based on default subtitle
+    if (defaultSubtitleSrc) {
+        videoElement.textTracks.forEach(function(track) {
+            if (track.src === defaultSubtitleSrc) {
+                track.mode = "showing";
+            } else {
+                track.mode = "hidden";
+            }
+        });
+    }
+
+    // Change video source based on selected resolution
+    resolutionSelect.addEventListener("change", function() {
+        var selectedResolution = this.value;
+        videoElement.src = videoUrl.replace(/_\d+p/, "_" + selectedResolution + "p");
+    });
+
+    // Toggle subtitles track
+    subtitlesSelect.addEventListener("change", function() {
+        var selectedSubtitleSrc = this.value;
+        videoElement.textTracks.forEach(function(track) {
+            if (track.src === selectedSubtitleSrc) {
+                track.mode = "showing";
+            } else {
+                track.mode = "hidden";
+            }
+        });
+    });
+});
+
+// Function to start playing the video when the "Play" link is clicked
+function startVideo(url) {
+    var videoElement = document.getElementById("videoElement");
+    videoElement.src = url;
+    videoElement.play();
+}
+</script>
+
 </body>
 </html>
