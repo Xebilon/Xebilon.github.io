@@ -67,11 +67,11 @@ function updateTable() {
 
     // Check if input values are not empty
     if (inputXXX.trim() !== '' && inputYYY.trim() !== '') {
-        var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream URL</th></tr>';
+        var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th><th>Pkay URL</th></tr>';
         var dataTable = document.getElementById('dataTable');
         csvData.forEach(row => {
             var rowHTML = '<tr>';
-            rowHTML += '<td>' + row.Category + '</td>';
+            
             rowHTML += '<td>' + row.ChannelName + '</td>';
 
             // Replace XXX and YYY in the Stream URL with user input values
@@ -80,6 +80,10 @@ function updateTable() {
          // Create a hyperlink to copy the stream URL to clipboard
 var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
 rowHTML += copyLinkHTML;
+
+             // Create a hyperlink to play the stream
+                    var playLinkHTML = '<td><a href="' + streamURL + '" target="_blank">Play</a></td>';
+                    rowHTML += playLinkHTML;
 
 
             rowHTML += '</tr>';
@@ -103,7 +107,7 @@ function filter() {
         return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
     });
 
-    var tableHTML = '<tr><th>Category</th><th>Channel Name</th><th>Stream URL</th></tr>';
+    var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th><th>Play URL</th></tr>';
     for (var i = 0; i < filteredData.length; i++) {
         var row = filteredData[i];
         var rowHTML = '<tr>';
@@ -119,6 +123,9 @@ function filter() {
 var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
 rowHTML += copyLinkHTML;
 
+                // Create a hyperlink to play the stream
+                    var playLinkHTML = '<td><a href="' + streamURL + '" target="_blank">Play</a></td>';
+                    rowHTML += playLinkHTML;
 
         rowHTML += '</tr>';
         tableHTML += rowHTML;
