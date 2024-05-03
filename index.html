@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database 2</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -326,15 +326,18 @@ async function fetchVideoData(url) {
     }
 }
 
-// Function to start playing the video when the "Play" link is clicked
 async function startVideo(url) {
+    console.log('startVideo() called with URL:', url);
     try {
         const response = await fetch('proxy.php?url=' + encodeURIComponent(url));
+        console.log('Response:', response);
         if (!response.ok) {
             throw new Error('Failed to fetch video');
         }
         const videoBlob = await response.blob();
+        console.log('Video Blob:', videoBlob);
         const videoUrl = URL.createObjectURL(videoBlob);
+        console.log('Video URL:', videoUrl);
         var videoElement = document.getElementById("videoElement");
         videoElement.src = videoUrl;
         videoElement.play();
@@ -344,6 +347,7 @@ async function startVideo(url) {
     }
     return false; // Prevent default behavior of the link
 }
+
 
 
 </script>
