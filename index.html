@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database 2</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -327,7 +327,7 @@ async function fetchVideoData(url) {
 // Function to start playing the video when the "Play" link is clicked
 async function startVideo(url) {
     try {
-        const response = await fetch('proxy.php?url=' + encodeURIComponent(url));
+        const response = await fetch('proxy.php?url=' + encodeURIComponent(streamURL));
         if (!response.ok) {
             throw new Error('Failed to fetch video');
         }
