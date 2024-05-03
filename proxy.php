@@ -24,6 +24,6 @@ if ($extension === 'ts') {
 header("Content-Type: $contentType");
 header("Access-Control-Allow-Origin: *"); // Allow all origins (for testing purposes)
 
-// Output video data
-echo $response;
+// Output the video content
+readfile($url);
 ?>
