@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database</title>
+    <title>Database 1</title>
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
@@ -316,6 +316,7 @@ function startVideo(url) {
     var videoElement = document.getElementById("videoElement");
     videoElement.src = url;
     videoElement.play();
+    return false; // Prevent default behavior of the link
 }
 </script>
 
