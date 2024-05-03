@@ -1,13 +1,19 @@
 <?php
 // Validate URL
-if (filter_var($_GET['url'], FILTER_VALIDATE_URL) === FALSE) {
+if (!isset($_GET['url']) || filter_var($_GET['url'], FILTER_VALIDATE_URL) === FALSE) {
     http_response_code(400);
     die('Not a valid URL');
 }
 
 // Fetch video data via proxy
 $url = $_GET['url'];
-$response = file_get_contents($url);
+$response = @file_get_contents($url);
+
+// Check if content was fetched successfully
+if ($response === FALSE) {
+    http_response_code(500);
+    die('Failed to fetch video content from the URL');
+}
 
 // Determine content type based on file extension
 $contentType = 'video/mp4'; // Default content type
@@ -25,5 +31,5 @@ header("Content-Type: $contentType");
 header("Access-Control-Allow-Origin: *"); // Allow all origins (for testing purposes)
 
 // Output the video content
-readfile($url);
+echo $response;
 ?>
