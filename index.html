@@ -327,16 +327,22 @@ async function fetchVideoData(url) {
 // Function to start playing the video when the "Play" link is clicked
 async function startVideo(url) {
     try {
-        const videoBlob = await fetchVideoData(url);
+        const response = await fetch('proxy.php?url=' + encodeURIComponent(url));
+        if (!response.ok) {
+            throw new Error('Failed to fetch video');
+        }
+        const videoBlob = await response.blob();
         const videoUrl = URL.createObjectURL(videoBlob);
         var videoElement = document.getElementById("videoElement");
         videoElement.src = videoUrl;
         videoElement.play();
     } catch (error) {
+        console.error('Proxy error:', error.message);
         // Handle errors
     }
     return false; // Prevent default behavior of the link
 }
+
 </script>
 
 
