@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -310,12 +310,31 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
+// Function to fetch the video data via proxy
+async function fetchVideoData(url) {
+    try {
+        const response = await fetch('https://cors-anywhere.herokuapp.com/' + url);
+        if (!response.ok) {
+            throw new Error('Failed to fetch video');
+        }
+        return await response.blob();
+    } catch (error) {
+        console.error('Proxy error:', error.message);
+        throw error;
+    }
+}
 
 // Function to start playing the video when the "Play" link is clicked
-function startVideo(url) {
-    var videoElement = document.getElementById("videoElement");
-    videoElement.src = url;
-    videoElement.play();
+async function startVideo(url) {
+    try {
+        const videoBlob = await fetchVideoData(url);
+        const videoUrl = URL.createObjectURL(videoBlob);
+        var videoElement = document.getElementById("videoElement");
+        videoElement.src = videoUrl;
+        videoElement.play();
+    } catch (error) {
+        // Handle errors
+    }
     return false; // Prevent default behavior of the link
 }
 </script>
