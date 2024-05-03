@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database 1</title>
+    <title>Database</title>
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database</h1>
+    <h1>Database 1</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -81,8 +81,8 @@ var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '
 rowHTML += copyLinkHTML;
 
              // Create a hyperlink to play the stream
-                    var playLinkHTML = '<td><a href="' + streamURL + '" target="_blank">Play</a></td>';
-                    rowHTML += playLinkHTML;
+                 var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + streamURL + '\');">Play</a></td>';
+rowHTML += playLinkHTML;
 
 
             rowHTML += '</tr>';
@@ -123,8 +123,8 @@ var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '
 rowHTML += copyLinkHTML;
 
                 // Create a hyperlink to play the stream
-                    var playLinkHTML = '<td><a href="' + streamURL + '" target="_blank">Play</a></td>';
-                    rowHTML += playLinkHTML;
+                var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + streamURL + '\');">Play</a></td>';
+rowHTML += playLinkHTML;
 
         rowHTML += '</tr>';
         tableHTML += rowHTML;
