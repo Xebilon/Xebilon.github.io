@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database </h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -81,7 +81,7 @@ var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '
 rowHTML += copyLinkHTML;
 
 // Constructing playLinkHTML
-var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + encodeURIComponent(streamURL) + '\');">Play</a></td>';
+var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + streamURL + '\');">Play</a></td>';
 
 rowHTML += playLinkHTML;
 
@@ -126,7 +126,7 @@ var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '
 rowHTML += copyLinkHTML;
 
 // Constructing playLinkHTML
-var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + encodeURIComponent(streamURL) + '\');">Play</a></td>';
+var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + streamURL + '\');">Play</a></td>';
 
 rowHTML += playLinkHTML;
 
@@ -175,31 +175,30 @@ function copyToClipboard(url, event) {
     </script>
 
     
-<style>
-    /* CSS styles for video player */
-    #videoPlayer {
-        max-width: 800px;
-        margin: 0 auto;
-    }
 
-    .controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 10px;
-    }
-</style>
 
 
 <!-- Video player container -->
-<div id="videoPlayer">
-        <video id="videoElement" controls style="width: 100%;">
-            Your browser does not support the video tag.
-        </video>
-    </div>
+    <link rel="stylesheet" href="https://releases.flowplayer.org/7.2.7/skin/skin.css">
+<video id="videoElement" controls></video>
+<script src="https://releases.flowplayer.org/7.2.7/flowplayer.min.js"></script>
+<script>
+    // Flowplayer setup
+    flowplayer("#videoElement", {
+        clip: {
+            sources: [
+                { type: "video/mp4", src: "" } // Leave src empty for now
+            ]
+        },
+        autoplay: true,
+        keyboard: false,
+        fullscreen: true,
+        embed: false
+    });
+</script>
+
 
     <script>
-        // Function to start playing the video when the "Play" link is clicked
         async function startVideo(url, useProxy = true, debug = true) {
     console.log('startVideo() called with URL:', url);
     try {
@@ -214,9 +213,8 @@ function copyToClipboard(url, event) {
             url = videoUrl;
         }
         
-        const videoElement = document.getElementById("videoElement");
-        videoElement.src = url;
-        await videoElement.play();
+        // Update Flowplayer's video source
+        flowplayer("#videoElement").load([{ type: "video/mp4", src: url }]);
         
         if (debug) {
             console.log('Video playback started:', url);
@@ -226,6 +224,7 @@ function copyToClipboard(url, event) {
         // Handle errors
     }
 }
+
 
 
 </script>
