@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 2</h1>
+    <h1>Database 1</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -185,16 +185,17 @@ function copyToClipboard(url, event) {
 <script>
     // Flowplayer setup
     flowplayer("#videoElement", {
-        clip: {
-            sources: [
-                { type: "video/mp4", src: "" } // Leave src empty for now
-            ]
-        },
-        autoplay: true,
-        keyboard: false,
-        fullscreen: true,
-        embed: false
-    });
+    clip: {
+        sources: [
+            // Placeholder for the video source, it will be updated dynamically
+            { type: "", src: "" }
+        ]
+    },
+    autoplay: true,
+    keyboard: false,
+    fullscreen: true,
+    embed: false
+});
 </script>
 
 
@@ -212,10 +213,31 @@ async function startVideo(url, useProxy = true, debug = true) {
             console.log('Video URL:', videoUrl);
             url = videoUrl;
         }
+
+        // Determine the file type from the URL
+        const fileType = url.split('.').pop().toLowerCase(); // Get the file extension
+        let type;
+        switch (fileType) {
+            case 'mp4':
+                type = 'video/mp4';
+                break;
+            case 'mkv':
+                type = 'video/x-matroska';
+                break;
+            case 'avi':
+                type = 'video/x-msvideo';
+                break;
+            case 'ts':
+                type = 'video/mp2t';
+                break;
+            default:
+                throw new Error('Unsupported file type');
+        }
         
-        // Update video element source directly
+        // Update video element source
         const videoElement = document.getElementById("videoElement");
         videoElement.src = url;
+        videoElement.type = type; // Set the appropriate MIME type
         videoElement.load(); // Load the new source
         
         if (debug) {
@@ -226,7 +248,6 @@ async function startVideo(url, useProxy = true, debug = true) {
         // Handle errors
     }
 }
-
 
 
 </script>
