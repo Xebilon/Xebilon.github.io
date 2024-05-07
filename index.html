@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 3</h1>
+    <h1>Database 2</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -186,6 +186,7 @@ function copyToClipboard(url, event) {
 
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
 async function startVideo(url, useProxy = true, debug = true) {
     console.log('startVideo() called with URL:', url);
     try {
@@ -257,6 +258,7 @@ function determineVideoType(url) {
     }
 }
 
+            });
 
 
 </script>
