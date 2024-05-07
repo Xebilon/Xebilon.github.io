@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 2</h1>
+    <h1>Database 1</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -187,11 +187,11 @@ function copyToClipboard(url, event) {
 
     <script>
     
-async function startVideo(url, useProxy = true, debug = true) {
-    console.log('startVideo() called with URL:', url);
+async function startVideo(streamURL, useProxy = true, debug = true) {
+    console.log('startVideo() called with URL:', streamURL);
     try {
         if (useProxy) {
-            const response = await fetch('proxy.php?url=' + decodeURIComponent(url));
+            const response = await fetch('proxy.php?url=' + decodeURIComponent(streamURL));
             console.log('Response:', response);
             if (!response.ok) {
                 throw new Error('Failed to fetch video');
@@ -199,7 +199,7 @@ async function startVideo(url, useProxy = true, debug = true) {
             const videoBlob = await response.blob(); // Get video data as Blob
             const videoUrl = URL.createObjectURL(videoBlob); // Create blob URL
             console.log('Video Blob URL:', videoUrl);
-            url = videoUrl;
+            streamURL = videoUrl;
         }
 
         // Check if Flowplayer is already initialized and attached to #videoElement
@@ -213,12 +213,12 @@ async function startVideo(url, useProxy = true, debug = true) {
         // Initialize Flowplayer if it's not already loaded
         if (!playerInstance.loaded) {
             // Determine video type based on file extension
-            const videoType = determineVideoType(url);
+            const videoType = determineVideoType(streamURL);
 
             flowplayer("videoElement", {
                 clip: {
                     sources: [
-                        { type: videoType, src: url } // Set correct video type based on file extension
+                        { type: videoType, src: streamURL } // Set correct video type based on file extension
                     ]
                 },
                 autoplay: true,
@@ -232,9 +232,9 @@ async function startVideo(url, useProxy = true, debug = true) {
             }
         } else {
             // If Flowplayer is already loaded, just update the video source
-            playerInstance.setClip({ sources: [{ type: videoType, src: url }] });
+            playerInstance.setClip({ sources: [{ type: videoType, src: streamURL }] });
             if (debug) {
-                console.log('Flowplayer video source updated:', url);
+                console.log('Flowplayer video source updated:', streamURL);
             }
         }
     } catch (error) {
@@ -243,22 +243,8 @@ async function startVideo(url, useProxy = true, debug = true) {
     }
 }
 
-function determineVideoType(url) {
-    const fileExtension = url.split('.').pop().toLowerCase();
-    switch (fileExtension) {
-        case 'mkv':
-            return 'video/x-matroska';
-        case 'mp4':
-            return 'video/mp4';
-        case 'avi':
-            return 'video/avi';
-        case 'ts':
-            return 'video/mp2t';
-        default:
-            return 'video/mp4'; // Default to MP4 if file format is unknown
-    }
-}
-        document.addEventListener("DOMContentLoaded", function() {
+
+       // document.addEventListener("DOMContentLoaded", function() {
 
             });
 
