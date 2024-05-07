@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database 2</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -179,7 +179,7 @@ function copyToClipboard(url, event) {
 
 
 <!-- Video player container -->
-    <link rel="stylesheet" href="https://releases.flowplayer.org/7.2.7/skin/skin.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowplayer@7.2.7/dist/skin/skin.css">
 <video id="videoElement" controls></video>
 <script src="https://cdn.jsdelivr.net/npm/flowplayer@7.2.7/dist/flowplayer.min.js"></script>
 
@@ -204,7 +204,7 @@ async function startVideo(streamURL, useProxy = true, debug = true) {
 
         // Check if Flowplayer is already initialized and attached to #videoElement
             
-        const playerInstance = flowplayer("videoElement");
+        const playerInstance = flowplayer("#videoElement");
         if (!playerInstance) {
             console.error('Flowplayer is not initialized or attached to #videoElement');
             return;
@@ -244,9 +244,9 @@ async function startVideo(streamURL, useProxy = true, debug = true) {
 }
 
 
-       // document.addEventListener("DOMContentLoaded", function() {
+      document.addEventListener("DOMContentLoaded", function() {
 
-           // });
+          });
 
 
 </script>
