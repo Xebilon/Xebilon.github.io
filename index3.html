@@ -1,0 +1,21 @@
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<video id="video" controls></video>
+<script>
+  // Function to fetch HLS stream via PHP proxy
+  function fetchHLSStream(url) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        var video = document.getElementById('video');
+        video.src = URL.createObjectURL(new Blob([xhr.responseText], { type: 'application/vnd.apple.mpegurl' }));
+        video.play();
+      }
+    };
+    xhr.open('GET', 'proxy.php?url=' + decodeURIComponent(url), true);
+    xhr.send();
+  }
+
+  // Call the function with your HLS stream URL
+  fetchHLSStream('http://line.premiumpowers.net/live/bd1011b416/176e4007b504/333985.m3u8');
+</script>
+
