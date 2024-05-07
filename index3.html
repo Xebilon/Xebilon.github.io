@@ -16,7 +16,7 @@
         });
       }
     };
-    xhr.open('GET', 'proxy.php?url=' + encodeURIComponent(url), true);
+    xhr.open('GET', 'proxy.php?url=' + decodeURIComponent(url), true);
     xhr.send();
   }
 </script>
