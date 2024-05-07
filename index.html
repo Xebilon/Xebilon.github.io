@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 2</h1>
+    <h1>Database 1</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -219,7 +219,6 @@ document.addEventListener("DOMContentLoaded", function() {
         embed: false
     });
 });
-// Function to start playing video
 async function startVideo(proxyURL, debug = true) {
     console.log('startVideo() called with URL:', proxyURL);
 
@@ -231,18 +230,15 @@ async function startVideo(proxyURL, debug = true) {
             return;
         }
 
-        // Check if the clip object is defined
-        const clip = playerInstance.getClip();
-        if (!clip) {
-            console.error('Clip object is not defined in Flowplayer instance');
-            return;
-        }
-
         // Check if the sources property is defined in the clip object
-        if (!clip.sources) {
+        const clip = playerInstance.getConfig().clip;
+        if (!clip || !clip.sources) {
             console.error('Sources property is not defined in Flowplayer clip object');
             return;
         }
+
+        // Log the proxy URL for debugging
+        console.log('Proxy URL:', proxyURL);
 
         // Set the sources property of the clip object
         const videoType = determineVideoType(proxyURL);
