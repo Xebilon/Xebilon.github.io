@@ -5,7 +5,7 @@
 <button onclick="fetchAndPlayHLSStream('https://line.premiumpowers.net/live/bd1011b416/176e4007b504/333985.m3u8')">Play</button>
 
 <script>
-// Function to fetch HLS stream via PHP proxy and play the video
+  // Function to fetch HLS stream via PHP proxy and play the video
   function fetchAndPlayHLSStream(url) {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
@@ -18,8 +18,10 @@
           console.error('Error playing video:', error);
         });
       }
-    };open('GET', 'proxy.php?url=' + decodeURIComponent(url), true);
+    };
+    // Open the XMLHttpRequest
+    xhr.open('GET', 'proxy.php?url=' + decodeURIComponent(url), true);
+    // Send the request
     xhr.send();
   }
 </script>
-
