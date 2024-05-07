@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database 2</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -218,10 +218,13 @@ document.addEventListener("DOMContentLoaded", function() {
 // Function to start playing video
 async function startVideo(streamURL, useProxy = true, debug = true) {
     console.log('startVideo() called with URL:', streamURL);
+
     // If useProxy is true, prepend the proxy URL to the stream URL
-        if (useProxy) {
-            streamURL = 'proxy.php?url=' + encodeURIComponent(streamURL);
-        }
+    if (useProxy) {
+        streamURL = 'proxy.php?url=' + encodeURIComponent(streamURL);
+    }
+
+    try {
         // Check if Flowplayer is already initialized and attached to #videoElement
         const playerInstance = flowplayer("#videoElement");
         if (!playerInstance) {
@@ -229,23 +232,28 @@ async function startVideo(streamURL, useProxy = true, debug = true) {
             return;
         }
 
-    try {
+        // Ensure that clip object is defined
+        if (!playerInstance.clip) {
+            console.error('Clip object is not defined in Flowplayer instance');
+            return;
+        }
+
+        // Ensure that clip object has sources property
+        if (!playerInstance.clip.sources) {
+            console.error('Sources property is not defined in Flowplayer clip object');
+            return;
+        }
+
         // Initialize Flowplayer if it's not already loaded
         if (!playerInstance.loaded) {
             // Determine video type based on file extension
             const videoType = determineVideoType(streamURL);
 
-            flowplayer("#videoElement", {
-                clip: {
-                    sources: [
-                        { type: videoType, src: streamURL } // Set correct video type based on file extension
-                    ]
-                },
-                autoplay: true,
-                keyboard: false,
-                fullscreen: true,
-                embed: false
-            });
+            // Set sources property of the clip object
+            playerInstance.clip.sources = [{ type: videoType, src: streamURL }];
+
+            // Load the video
+            playerInstance.load(); // Attempt to load the video
 
             if (debug) {
                 console.log('Flowplayer initialized and attached to #videoElement');
@@ -263,6 +271,7 @@ async function startVideo(streamURL, useProxy = true, debug = true) {
         // Handle errors
     }
 }
+
 
 
 </script>
