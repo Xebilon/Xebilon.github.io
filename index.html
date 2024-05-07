@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database 2</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -201,27 +201,39 @@ async function startVideo(url, useProxy = true, debug = true) {
             url = videoUrl;
         }
 
-        // Check if Flowplayer is already initialized
-        if (flowplayer("#videoElement").loaded) {
-            // Flowplayer is initialized, unload it first
-            flowplayer("#videoElement").unload();
+        // Check if Flowplayer is already initialized and attached to #videoElement
+        const playerInstance = flowplayer("#videoElement");
+        if (!playerInstance) {
+            console.error('Flowplayer is not initialized or attached to #videoElement');
+            return;
         }
 
-        // Initialize Flowplayer
-        flowplayer("#videoElement", {
-            clip: {
-                sources: [
-                    { type: 'video/mp4', src: url } // Set blob URL as the source
-                ]
-            },
-            autoplay: true,
-            keyboard: false,
-            fullscreen: true,
-            embed: false
-        });
+        // Initialize Flowplayer if it's not already loaded
+        if (!playerInstance.loaded) {
+            // Determine video type based on file extension
+            const videoType = determineVideoType(url);
 
-        if (debug) {
-            console.log('Flowplayer initialized and attached to #videoElement');
+            flowplayer("#videoElement", {
+                clip: {
+                    sources: [
+                        { type: videoType, src: url } // Set correct video type based on file extension
+                    ]
+                },
+                autoplay: true,
+                keyboard: false,
+                fullscreen: true,
+                embed: false
+            });
+
+            if (debug) {
+                console.log('Flowplayer initialized and attached to #videoElement');
+            }
+        } else {
+            // If Flowplayer is already loaded, just update the video source
+            playerInstance.setClip({ sources: [{ type: videoType, src: url }] });
+            if (debug) {
+                console.log('Flowplayer video source updated:', url);
+            }
         }
     } catch (error) {
         console.error('Error playing video:', error.message);
@@ -229,6 +241,21 @@ async function startVideo(url, useProxy = true, debug = true) {
     }
 }
 
+function determineVideoType(url) {
+    const fileExtension = url.split('.').pop().toLowerCase();
+    switch (fileExtension) {
+        case 'mkv':
+            return 'video/x-matroska';
+        case 'mp4':
+            return 'video/mp4';
+        case 'avi':
+            return 'video/avi';
+        case 'ts':
+            return 'video/mp2t';
+        default:
+            return 'video/mp4'; // Default to MP4 if file format is unknown
+    }
+}
 
 
 
