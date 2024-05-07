@@ -1,6 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <video id="video" controls></video>
-<button onclick="playVideo()">Play</button>
+<button onclick="fetchAndPlayHLSStream('https://line.premiumpowers.net/live/bd1011b416/176e4007b504/333985')">Play</button>
 
 <script>
   // Function to fetch HLS stream via PHP proxy and play the video
@@ -19,9 +19,5 @@
     xhr.open('GET', 'proxy.php?url=' + encodeURIComponent(url), true);
     xhr.send();
   }
-
-  // Function to play the video after a user interaction
-  function playVideo() {
-  fetchHLSStream('http://line.premiumpowers.net/live/bd1011b416/176e4007b504/333985.m3u8');
 </script>
 
