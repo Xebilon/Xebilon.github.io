@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 2</h1>
+    <h1>Database 1</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -186,10 +186,10 @@ function copyToClipboard(url, event) {
 
 
     <script>
-
-        function determineVideoType(url) {
+// Function to determine video type based on file extension
+function determineVideoType(streamURL) {
     // Extract file extension from the URL
-    const extension = url.split('.').pop().toLowerCase();
+    const extension = streamURL.split('.').pop().toLowerCase();
 
     // Map file extensions to video MIME types
     const extensionToType = {
@@ -204,6 +204,7 @@ function copyToClipboard(url, event) {
     return extensionToType[extension] || 'video/mp4'; // Default to mp4 if extension is not recognized
 }
 
+
 // Wait for the DOM content to be fully loaded
 document.addEventListener("DOMContentLoaded", function() {
     // Initialize Flowplayer
@@ -216,13 +217,12 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // Function to start playing video
-async function startVideo(streamURL, useProxy = true, debug = true) {
+async function startVideo(streamURL, debug = true) {
     console.log('startVideo() called with URL:', streamURL);
 
     // If useProxy is true, prepend the proxy URL to the stream URL
-    if (useProxy) {
-        streamURL = 'proxy.php?url=' + encodeURIComponent(streamURL);
-    }
+    const proxyURL = 'proxy.php?url=';
+    const fullURL = proxyURL + encodeURIComponent(streamURL);
 
     try {
         // Check if Flowplayer is already initialized and attached to #videoElement
@@ -247,10 +247,10 @@ async function startVideo(streamURL, useProxy = true, debug = true) {
         // Initialize Flowplayer if it's not already loaded
         if (!playerInstance.loaded) {
             // Determine video type based on file extension
-            const videoType = determineVideoType(streamURL);
+            const videoType = determineVideoType(fullURL);
 
             // Set sources property of the clip object
-            playerInstance.clip.sources = [{ type: videoType, src: streamURL }];
+            playerInstance.clip.sources = [{ type: videoType, src: fullURL }];
 
             // Load the video
             playerInstance.load(); // Attempt to load the video
@@ -260,10 +260,10 @@ async function startVideo(streamURL, useProxy = true, debug = true) {
             }
         } else {
             // If Flowplayer is already loaded, just update the video source
-            const videoType = determineVideoType(streamURL);
-            playerInstance.setClip({ sources: [{ type: videoType, src: streamURL }] });
+            const videoType = determineVideoType(fullURL);
+            playerInstance.setClip({ sources: [{ type: videoType, src: fullURL }] });
             if (debug) {
-                console.log('Flowplayer video source updated:', streamURL);
+                console.log('Flowplayer video source updated:', fullURL);
             }
         }
     } catch (error) {
