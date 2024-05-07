@@ -1,24 +1,37 @@
 
-<h1>test 2</h1>
+<h1>test 1</h1>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<video id="video" controls></video>
 <script>
   // Initialize the video element
   var video = document.getElementById('video');
 
   if (Hls.isSupported()) {
     var hls = new Hls();
-    hls.loadSource('proxy.php?url=http://line.premiumpowers.net/live/bd1011b416/176e4007b504/333985.m3u8');
+    hls.loadSource('proxy.php?url=http://line.premiumpowers.net/bd1011b416/176e4007b504/333985.m3u8');
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, function () {
-      video.play();
+      console.log("HLS manifest parsed successfully");
+      video.play().then(function() {
+        console.log("Video playback started successfully");
+      }).catch(function(error) {
+        console.error("Failed to start video playback:", error);
+      });
+    });
+    hls.on(Hls.Events.ERROR, function (event, data) {
+      console.error("HLS.js error:", event, data);
     });
   }
   else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = 'proxy.php?url=http://line.premiumpowers.net/live/bd1011b416/176e4007b504/333985.m3u8';
+    video.src = 'proxy.php?url=http://line.premiumpowers.net/live/bd1011b416/176e4007b504/333985.m3u8');
     video.addEventListener('loadedmetadata', function() {
-      video.play();
+      video.play().then(function() {
+        console.log("Video playback started successfully");
+      }).catch(function(error) {
+        console.error("Failed to start video playback:", error);
+      });
     });
+  } else {
+    console.error("HLS.js is not supported and the video element does not support HLS natively.");
   }
 </script>
 
