@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database 2</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -186,6 +186,24 @@ function copyToClipboard(url, event) {
 
 
     <script>
+
+        function determineVideoType(url) {
+    // Extract file extension from the URL
+    const extension = url.split('.').pop().toLowerCase();
+
+    // Map file extensions to video MIME types
+    const extensionToType = {
+        'mp4': 'video/mp4',
+        'mkv': 'video/x-matroska',
+        'avi': 'video/x-msvideo',
+        'ts': 'video/mp2t',
+        'm3u8': 'application/vnd.apple.mpegurl' // Add support for m3u8
+    };
+
+    // Return video type based on the file extension
+    return extensionToType[extension] || 'video/mp4'; // Default to mp4 if extension is not recognized
+}
+
 // Wait for the DOM content to be fully loaded
 document.addEventListener("DOMContentLoaded", function() {
     // Initialize Flowplayer
