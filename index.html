@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database 2</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -216,6 +216,7 @@ async function startVideo(url, useProxy = true, debug = true) {
 
         // Determine the file type from the URL
         const fileType = url.split('.').pop().toLowerCase(); // Get the file extension
+       console.log('File Type:', fileType); // Log the file type
         let type;
         switch (fileType) {
             case 'mp4':
