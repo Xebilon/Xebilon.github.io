@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 2</h1>
+    <h1>Database 1</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -80,9 +80,11 @@ var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
 rowHTML += copyLinkHTML;
 
-// Constructing playLinkHTML
-var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + streamURL + '\');">Play</a></td>';
+// Create the proxy URL
+var proxyURL = 'proxy.php?url=' + encodeURIComponent(streamURL);
 
+// Create the play link HTML with the proxyURL
+var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + proxyURL + '\');">Play</a></td>';
 rowHTML += playLinkHTML;
 
 
@@ -125,8 +127,11 @@ var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
 rowHTML += copyLinkHTML;
 
-// Constructing playLinkHTML
-var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + streamURL + '\');">Play</a></td>';
+// Create the proxy URL
+var proxyURL = 'proxy.php?url=' + encodeURIComponent(streamURL);
+
+// Create the play link HTML with the proxyURL
+var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + proxyURL + '\');">Play</a></td>';
 
 rowHTML += playLinkHTML;
 
@@ -186,25 +191,6 @@ function copyToClipboard(url, event) {
 
 
     <script>
-// Function to determine video type based on file extension
-function determineVideoType(streamURL) {
-    // Extract file extension from the URL
-    const extension = streamURL.split('.').pop().toLowerCase();
-
-    // Map file extensions to video MIME types
-    const extensionToType = {
-        'mp4': 'video/mp4',
-        'mkv': 'video/x-matroska',
-        'avi': 'video/x-msvideo',
-        'ts': 'video/mp2t',
-        'm3u8': 'application/vnd.apple.mpegurl' // Add support for m3u8
-    };
-
-    // Return video type based on the file extension
-    return extensionToType[extension] || 'video/mp4'; // Default to mp4 if extension is not recognized
-}
-
-
 // Wait for the DOM content to be fully loaded
 document.addEventListener("DOMContentLoaded", function() {
     // Initialize Flowplayer
@@ -217,14 +203,13 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // Function to start playing video
-async function startVideo(streamURL, debug = true) {
-    console.log('startVideo() called with URL:', streamURL);
-
-    // If useProxy is true, prepend the proxy URL to the stream URL
-    const proxyURL = 'proxy.php?url=';
-    const fullURL = proxyURL + encodeURIComponent(streamURL);
+async function startVideo(proxyURL, debug = true) {
+    console.log('startVideo() called with URL:', proxyURL);
 
     try {
+        // Extract the original stream URL from the proxied URL
+        const streamURL = decodeURIComponent(proxyURL.split('proxy.php?url=')[1]);
+
         // Check if Flowplayer is already initialized and attached to #videoElement
         const playerInstance = flowplayer("#videoElement");
         if (!playerInstance) {
@@ -232,37 +217,21 @@ async function startVideo(streamURL, debug = true) {
             return;
         }
 
-        // Check if the clip object is defined
-        if (!playerInstance.getClip) {
-            console.error('Clip object is not defined in Flowplayer instance');
-            return;
-        }
-
-        // Check if the sources property is defined in the clip object
-        const clip = playerInstance.getClip();
-        if (!clip || !clip.sources) {
-            console.error('Sources property is not defined in Flowplayer clip object');
-            return;
-        }
-
         // Set the sources property of the clip object
         const videoType = determineVideoType(streamURL);
-        clip.sources = [{ type: videoType, src: fullURL }];
+        playerInstance.setClip({ sources: [{ type: videoType, src: proxyURL }] });
 
         // Load the video
         playerInstance.load();
 
         if (debug) {
-            console.log('Flowplayer initialized and attached to #videoElement');
-            console.log('Video source:', fullURL);
+            console.log('Flowplayer video source updated:', proxyURL);
         }
     } catch (error) {
         console.error('Error playing video:', error.message);
         // Handle errors
     }
 }
-
-
 
 
 </script>
