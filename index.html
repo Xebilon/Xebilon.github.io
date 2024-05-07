@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 1</h1>
+    <h1>Database 2</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -233,24 +233,21 @@ async function startVideo(streamURL, debug = true) {
         }
 
         // Ensure that clip object is defined
-        if (!playerInstance.clip) {
+        if (!playerInstance.getClip) {
             console.error('Clip object is not defined in Flowplayer instance');
             return;
         }
 
-        // Ensure that clip object has sources property
-        if (!playerInstance.clip.sources) {
-            console.error('Sources property is not defined in Flowplayer clip object');
-            return;
-        }
-
         // Initialize Flowplayer if it's not already loaded
-        if (!playerInstance.loaded) {
+        if (!playerInstance.isLoaded()) {
             // Determine video type based on file extension
             const videoType = determineVideoType(fullURL);
 
             // Set sources property of the clip object
-            playerInstance.clip.sources = [{ type: videoType, src: fullURL }];
+            playerInstance.setClip({
+                sources: [{ type: videoType, src: fullURL }],
+                autoplay: true
+            });
 
             // Load the video
             playerInstance.load(); // Attempt to load the video
@@ -271,6 +268,7 @@ async function startVideo(streamURL, debug = true) {
         // Handle errors
     }
 }
+
 
 
 
