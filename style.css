@@ -72,14 +72,4 @@ a:visited {
     color: black;
 }
 
-#notification {
-    display: none;
-    position: absolute;
-    background-color: #252919;
-    color: white;
-    padding: 15px;
-    border-radius: 5px;
-    z-index: 1000;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    border: 1px solid #ddd;
-}
+
