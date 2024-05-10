@@ -2,12 +2,12 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: darkgrey; /* Changed background color to darkgrey */
+    background-color: rgb(59, 59, 59); /* Changed background color to darkgrey */
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    color: #000000;
 }
 
 input[type="text"], button {
@@ -22,30 +22,29 @@ input[type="text"] {
 }
 
 button {
-    background-color: black; /* Changed button background color to black */
+    background-color: rgba(0, 0, 0, 0.753); /* Changed button background color to black */
     color: white;
     cursor: pointer;
-    border: 1px solid white; /* Added white border to button */
+    border: 3px solid rgba(255, 255, 255, 0.479); /* Added white border to button */
 }
 
 button:hover {
     background-color: #333; /* Changed button hover background color to darker shade of black */
 }
-
 #tableContainer {
     border-collapse: collapse;
     margin: 25px auto; /* Centering the table */
     font-size: 0.9em;
     font-family: sans-serif;
     width: 30%; /* Set the width to 30% of the screen */
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 20px rgb(0, 0, 0);
     text-align: center; /* Centering table content */
-    background-color: #333; /* Added background color to table container */
+    background-color: #4e2f72; /* Added background color to table container */
 }
 
 #tableContainer table {
     width: 100%; /* Make the table fill the container */
-    border: 1px solid white; /* Changed table border color to white */
+    border: 3px solid rgba(255, 255, 255, 0.425); /* Changed table border color to white */
 }
 
 #tableContainer thead tr {
@@ -57,20 +56,30 @@ button:hover {
 #tableContainer th,
 #tableContainer td {
     padding: 12px 15px;
+    border: 1px solid black; /* Add border to each cell */
+    font-weight: bold; /* Make text bold */
 }
 
 #tableContainer tbody tr {
-    border-bottom: 1px solid #dddddd;
+    border: 1px solid black; /* Add border to each row */
 }
 
-#tableContainer tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3; /* Even row background color */
+#tableContainer tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.6); /* Hover color with 60% transparency */
 }
 
-#tableContainer tbody tr:last-of-type {
-    border-bottom: 2px solid #009879; /* Last row border color */
+a:visited {
+    color: black;
 }
 
-tr:hover {
-    background-color: #f5f5f5;
+#notification {
+    display: none;
+    position: absolute;
+    background-color: #252919;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    z-index: 1000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border: 1px solid #ddd;
 }
