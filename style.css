@@ -50,7 +50,7 @@ button:hover {
     margin: 25px auto; /* Centering the table */
     font-size: 0.9em;
     font-family: sans-serif;
-    width: 50%; /* Set the width to 30% of the screen */
+    width: 70%; /* Set the width to 30% of the screen */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     text-align: center; /* Centering table content */
 }
