@@ -10,18 +10,6 @@ h1 {
     color: #333;
 }
 
-.copy-notification {
-    display: none;
-    position: absolute;
-    background-color: #4CAF50;
-    color: white;
-    padding: 15px;
-    border-radius: 5px;
-    z-index: 1000;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    border: 1px solid #ddd;
-}
-
 
 input[type="text"], button {
     padding: 10px;
