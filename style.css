@@ -50,7 +50,7 @@ button:hover {
     margin: 25px auto; /* Centering the table */
     font-size: 0.9em;
     font-family: sans-serif;
-    width: 70%; /* Set the width to 30% of the screen */
+    width: 30%; /* Set the width to 30% of the screen */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     text-align: center; /* Centering table content */
 }
@@ -59,26 +59,27 @@ button:hover {
     width: 100%; /* Make the table fill the container */
 }
 
+#tableContainer thead tr {
+    background-color: #009879; /* Header background color */
+    color: #ffffff; /* Header text color */
+    text-align: center; /* Center header text */
+}
+
+#tableContainer th,
+#tableContainer td {
+    padding: 12px 15px;
+}
+
 #tableContainer tbody tr {
     border-bottom: 1px solid #dddddd;
 }
 
 #tableContainer tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3;
+    background-color: #f3f3f3; /* Even row background color */
 }
 
 #tableContainer tbody tr:last-of-type {
-    border-bottom: 2px solid #009879;
-}
-
-th, td {
-    padding: 12px 15px;
-}
-
-th {
-    background-color: #009879;
-    color: #ffffff;
-    text-align: center;
+    border-bottom: 2px solid #009879; /* Last row border color */
 }
 
 tr:hover {
