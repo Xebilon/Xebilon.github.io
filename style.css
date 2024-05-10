@@ -32,7 +32,7 @@ input[type="text"], button {
 }
 
 input[type="text"] {
-    width: calc(50% - 20px);
+    width: calc(15% - 20px);
 }
 
 button {
@@ -50,12 +50,12 @@ button:hover {
     margin: 25px 0;
     font-size: 0.9em;
     font-family: sans-serif;
-    min-width: 400px;
+    min-width: 200px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
 table {
-    width: 70%;
+    width: 50%;
     border-collapse: collapse;
     margin-top: 10px;
 }
