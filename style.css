@@ -2,14 +2,13 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f7f7f7;
+    background-color: darkgrey; /* Changed background color to darkgrey */
 }
 
 h1 {
     text-align: center;
     color: #333;
 }
-
 
 input[type="text"], button {
     padding: 10px;
@@ -23,13 +22,14 @@ input[type="text"] {
 }
 
 button {
-    background-color: #4CAF50;
+    background-color: black; /* Changed button background color to black */
     color: white;
     cursor: pointer;
+    border: 1px solid white; /* Added white border to button */
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #333; /* Changed button hover background color to darker shade of black */
 }
 
 #tableContainer {
@@ -40,10 +40,12 @@ button:hover {
     width: 30%; /* Set the width to 30% of the screen */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     text-align: center; /* Centering table content */
+    background-color: #333; /* Added background color to table container */
 }
 
 #tableContainer table {
     width: 100%; /* Make the table fill the container */
+    border: 1px solid white; /* Changed table border color to white */
 }
 
 #tableContainer thead tr {
