@@ -46,6 +46,7 @@ button:hover {
 }
 
 #tableContainer {
+    display: inline-block;
     border-collapse: collapse;
     margin: 25px auto; /* Centering the table */
     font-size: 0.9em;
