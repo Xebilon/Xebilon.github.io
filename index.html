@@ -7,7 +7,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="style.css">
-    <h1>Database 2</h1>
+    <h1>Database 1</h1>
     <center>
 <div id="copyNotification" class="copy-notification">URL Copied!</div>
          <!-- Input fields for XXX and YYY -->
@@ -80,13 +80,6 @@ var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
 rowHTML += copyLinkHTML;
 
-// Create the play link HTML with the proxyURL
-
-            var proxyURL = 'https://xebilon.github.io/proxy.php?url=' + encodeURIComponent(streamURL);
-var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + proxyURL + '\');">Play</a></td>';
-rowHTML += playLinkHTML;
-
-
 
 
             rowHTML += '</tr>';
@@ -126,12 +119,6 @@ var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
 rowHTML += copyLinkHTML;
 
-
-// Create the play link HTML with the proxyURL
-  var proxyURL = 'https://xebilon.github.io/proxy.php?url=' + encodeURIComponent(streamURL);
-var playLinkHTML = '<td><a href="#" onclick="startVideo(\'' + proxyURL + '\');">Play</a></td>';
-
-rowHTML += playLinkHTML;
 
 
 
@@ -181,25 +168,6 @@ function copyToClipboard(url, event) {
 
 
 
-<!-- Video player container -->
-
- <div id="playerContainer">
-        <!-- Embedded HLS player will be dynamically added here -->
-    </div>
-
-    <script>
- function startVideo(streamURL) {
-            const playerContainer = document.getElementById('playerContainer');
-            playerContainer.innerHTML = ''; // Clear previous player
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://www.hlsplayer.org/play?url=${encodeURIComponent(streamURL)}`;
-            iframe.width = '100%';
-            iframe.height = '500px'; // Adjust height as needed
-            iframe.frameBorder = '0';
-            playerContainer.appendChild(iframe);
-        }
-
-</script>
 
 
 
