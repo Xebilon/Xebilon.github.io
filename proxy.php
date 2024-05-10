@@ -1,35 +1,11 @@
 <?php
-// Validate URL
-if (!isset($_GET['url']) || filter_var($_GET['url'], FILTER_VALIDATE_URL) === FALSE) {
-    http_response_code(400);
-    die('Not a valid URL');
-}
-
-// Fetch video data via proxy
+// Get the URL of the HLS stream
 $url = $_GET['url'];
-$response = @file_get_contents($url);
 
-// Check if content was fetched successfully
-if ($response === FALSE) {
-    http_response_code(500);
-    die('Failed to fetch video content from the URL');
-}
+// Set the correct headers to allow CORS
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/x-mpegURL');
 
-// Determine content type based on file extension
-$contentType = 'video/mp4'; // Default content type
-$extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
-if ($extension === 'ts') {
-    $contentType = 'video/mp2t';
-} else if ($extension === 'avi') {
-    $contentType = 'video/x-msvideo';
-} else if ($extension === 'mkv') {
-    $contentType = 'video/x-matroska';
-}
-
-// Set proper headers
-header("Content-Type: $contentType");
-header("Access-Control-Allow-Origin: *"); // Allow all origins (for testing purposes)
-
-// Output the video content
-echo $response;
+// Output the HLS stream content
+echo file_get_contents($url);
 ?>
