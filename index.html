@@ -8,7 +8,7 @@
 <body>
     <link rel="stylesheet" href="style.css">
      <h1>Database 2</h1>
-    <center>
+   <center>
         <div id="copyNotification" class="copy-notification">URL Copied!</div>
         <label for="inputXXX">Username:</label>
         <input type="text" id="inputXXX" placeholder="Enter Username..." oninput="updateTable()">
@@ -18,23 +18,35 @@
         <input type="text" id="searchInput" placeholder="Channel/Movie...">
         <button onclick="filter()">Filter</button>
 
-      
-
-        <div id="tableContainer">
-            <table id="dataTable" style="display: none;"></table>
-        </div>
-
-          <div id="paginationControls">
+        <div id="paginationControls">
             <button onclick="prevPage()"><< Prev</button>
             <button onclick="nextPage()">Next >></button>
         </div>
         <div id="paginationInfo"></div>
+
+        <div id="tableContainer">
+            <table id="dataTable" style="display: none;"></table>
+        </div>
     </center>
 
     <script>
         var csvData = [];
         var rowsPerPage = 15; // Number of rows to display per page
         var currentPage = 1; // Current page
+        var csvDataFiltered = []; // Store filtered data
+
+        // Function to filter data
+        function filter() {
+            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var filteredData = csvData.filter(row => {
+                // Check if the row has the 'Channel Name' property and if it includes the search term
+                return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
+            });
+
+            currentPage = 1; // Reset current page to 1 when filtering
+            csvDataFiltered = filteredData; // Store filtered data
+            updateTable(); // Update the table with filtered data
+        }
 
         // Function to fetch CSV data from GitHub
         function fetchCSVFromGitHub() {
@@ -64,65 +76,44 @@
                 });
         }
 
-      
-          
+        // Function to update table
+        function updateTable() {
+            var inputXXX = document.getElementById('inputXXX').value;
+            var inputYYY = document.getElementById('inputYYY').value;
 
-       // Function to filter data
-function filter() {
-    var searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    var filteredData = csvData.filter(row => {
-        // Check if the row has the 'Channel Name' property and if it includes the search term
-        return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
-    });
+            var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th></tr>';
+            var dataTable = document.getElementById('dataTable');
 
-    currentPage = 1; // Reset current page to 1 when filtering
-    csvDataFiltered = filteredData; // Store filtered data
-    updateTable(); // Update the table with filtered data
-}
+            var start = (currentPage - 1) * rowsPerPage;
+            var end = start + rowsPerPage;
+            var totalPages = Math.ceil(csvDataFiltered.length / rowsPerPage);
 
-// Function to update table
-function updateTable() {
-    var inputXXX = document.getElementById('inputXXX').value;
-    var inputYYY = document.getElementById('inputYYY').value;
+            csvDataFiltered.slice(start, end).forEach(row => {
+                var rowHTML = '<tr>';
+                rowHTML += '<td>' + row.ChannelName + '</td>';
 
-    var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th></tr>';
-    var dataTable = document.getElementById('dataTable');
+                // Replace XXX and YYY in the Stream URL with user input values
+                var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 
-    var start = (currentPage - 1) * rowsPerPage;
-    var end = start + rowsPerPage;
-    var totalPages = Math.ceil(csvDataFiltered.length / rowsPerPage);
+                // Create a hyperlink to copy the stream URL to clipboard
+                var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
+                rowHTML += copyLinkHTML;
 
-    csvDataFiltered.slice(start, end).forEach(row => {
-        var rowHTML = '<tr>';
-        rowHTML += '<td>' + row.ChannelName + '</td>';
+                rowHTML += '</tr>';
+                tableHTML += rowHTML;
+            });
 
-        // Replace XXX and YYY in the Stream URL with user input values
-        var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
+            dataTable.innerHTML = tableHTML;
+            dataTable.style.display = 'table';
 
-        // Create a hyperlink to copy the stream URL to clipboard
-        var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
-        rowHTML += copyLinkHTML;
-
-        rowHTML += '</tr>';
-        tableHTML += rowHTML;
-    });
-
-    dataTable.innerHTML = tableHTML;
-    dataTable.style.display = 'table';
-
-    // Update page navigation
-    var paginationInfo = document.getElementById('paginationInfo');
-    paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-}
-
-  // Update page navigation
+            // Update page navigation
             var paginationInfo = document.getElementById('paginationInfo');
             paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
         }
 
         // Function to go to the next page
         function nextPage() {
-            var totalPages = Math.ceil(csvData.length / rowsPerPage);
+            var totalPages = Math.ceil(csvDataFiltered.length / rowsPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
                 updateTable();
@@ -136,7 +127,7 @@ function updateTable() {
                 updateTable();
             }
         }
-        
+
         // Function to copy text to clipboard and show notification
         function copyToClipboard(url, event) {
             var textarea = document.createElement('textarea');
@@ -177,9 +168,7 @@ function updateTable() {
         // Fetch CSV data from GitHub when the page loads
         window.onload = fetchCSVFromGitHub;
     </script>
-
-    </script>
-
+    
     
 
 
