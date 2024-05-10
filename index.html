@@ -62,37 +62,58 @@
                 });
         }
 
-        // Function to update table
-        function updateTable() {
-            var inputXXX = document.getElementById('inputXXX').value;
-            var inputYYY = document.getElementById('inputYYY').value;
+      
+          
 
-            var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th></tr>';
-            var dataTable = document.getElementById('dataTable');
+       // Function to filter data
+function filter() {
+    var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    var filteredData = csvData.filter(row => {
+        // Check if the row has the 'Channel Name' property and if it includes the search term
+        return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
+    });
 
-            var start = (currentPage - 1) * rowsPerPage;
-            var end = start + rowsPerPage;
-            var totalPages = Math.ceil(csvData.length / rowsPerPage);
+    currentPage = 1; // Reset current page to 1 when filtering
+    csvDataFiltered = filteredData; // Store filtered data
+    updateTable(); // Update the table with filtered data
+}
 
-            csvData.slice(start, end).forEach(row => {
-                var rowHTML = '<tr>';
-                rowHTML += '<td>' + row.ChannelName + '</td>';
+// Function to update table
+function updateTable() {
+    var inputXXX = document.getElementById('inputXXX').value;
+    var inputYYY = document.getElementById('inputYYY').value;
 
-                // Replace XXX and YYY in the Stream URL with user input values
-                var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
+    var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th></tr>';
+    var dataTable = document.getElementById('dataTable');
 
-                // Create a hyperlink to copy the stream URL to clipboard
-                var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
-                rowHTML += copyLinkHTML;
+    var start = (currentPage - 1) * rowsPerPage;
+    var end = start + rowsPerPage;
+    var totalPages = Math.ceil(csvDataFiltered.length / rowsPerPage);
 
-                rowHTML += '</tr>';
-                tableHTML += rowHTML;
-            });
+    csvDataFiltered.slice(start, end).forEach(row => {
+        var rowHTML = '<tr>';
+        rowHTML += '<td>' + row.ChannelName + '</td>';
 
-            dataTable.innerHTML = tableHTML;
-            dataTable.style.display = 'table';
+        // Replace XXX and YYY in the Stream URL with user input values
+        var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
 
-            // Update page navigation
+        // Create a hyperlink to copy the stream URL to clipboard
+        var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
+        rowHTML += copyLinkHTML;
+
+        rowHTML += '</tr>';
+        tableHTML += rowHTML;
+    });
+
+    dataTable.innerHTML = tableHTML;
+    dataTable.style.display = 'table';
+
+    // Update page navigation
+    var paginationInfo = document.getElementById('paginationInfo');
+    paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+}
+
+  // Update page navigation
             var paginationInfo = document.getElementById('paginationInfo');
             paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
         }
@@ -113,19 +134,7 @@
                 updateTable();
             }
         }
-
-        // Function to filter data
-        function filter() {
-            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            var filteredData = csvData.filter(row => {
-                // Check if the row has the 'Channel Name' property and if it includes the search term
-                return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
-            });
-
-            currentPage = 1; // Reset current page to 1 when filtering
-            updateTable(); // Update the table with filtered data
-        }
-
+        
         // Function to copy text to clipboard and show notification
         function copyToClipboard(url, event) {
             var textarea = document.createElement('textarea');
