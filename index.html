@@ -24,110 +24,108 @@
     <div id="tableContainer">
         <table id="dataTable" style="display: none;"></table>
     </div>
+        <br><br>
+<div id="paginationControls">
+    <button onclick="prevPage()"><< Prev</button>
+    <button onclick="nextPage()">Next >></button>
+</div>
+<div id="paginationInfo"></div>
 </center>
     <script>
-        var csvData = [];
+         var csvData = [];
+    var rowsPerPage = 15; // Number of rows to display per page
+    var currentPage = 1; // Current page
 
-        // Function to fetch CSV data from GitHub
-        function fetchCSVFromGitHub() {
-            fetch('https://raw.githubusercontent.com/Xebilon/Xebilon.github.io/main/Bok2.csv')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
-                .then(csvText => {
-                    csvData = csvText.split('\n').map(row => row.split(','));
+    // Function to fetch CSV data from GitHub
+    function fetchCSVFromGitHub() {
+        fetch('https://raw.githubusercontent.com/Xebilon/Xebilon.github.io/main/Bok2.csv')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(csvText => {
+                csvData = csvText.split('\n').map(row => row.split(','));
 
-                    // Convert CSV data to array of objects
-                    csvData = csvData.slice(1).map(row => {
-                        return {
-                            ChannelName: row[2],
-                            StreamURL: row[8]
-                        };
-                    });
-
-                    // Populate table with rows as they are loaded
-                    updateTable();
-                })
-                .catch(error => {
-                    console.error('Error fetching CSV data:', error);
+                // Convert CSV data to array of objects
+                csvData = csvData.slice(1).map(row => {
+                    return {
+                        ChannelName: row[2],
+                        StreamURL: row[8]
+                    };
                 });
+
+                // Populate table with rows as they are loaded
+                updateTable();
+            })
+            .catch(error => {
+                console.error('Error fetching CSV data:', error);
+            });
+    }
+
+    // Function to update table
+    function updateTable() {
+        var inputXXX = document.getElementById('inputXXX').value;
+        var inputYYY = document.getElementById('inputYYY').value;
+
+        // Check if input values are not empty
+        if (inputXXX.trim() !== '' && inputYYY.trim() !== '') {
+            var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th></tr>';
+            var dataTable = document.getElementById('dataTable');
+
+            var start = (currentPage - 1) * rowsPerPage;
+            var end = start + rowsPerPage;
+            var totalPages = Math.ceil(csvData.length / rowsPerPage);
+
+            csvData.slice(start, end).forEach(row => {
+                var rowHTML = '<tr>';
+                rowHTML += '<td>' + row.ChannelName + '</td>';
+
+                // Replace XXX and YYY in the Stream URL with user input values
+                var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
+
+                // Create a hyperlink to copy the stream URL to clipboard
+                var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
+                rowHTML += copyLinkHTML;
+
+                rowHTML += '</tr>';
+                tableHTML += rowHTML;
+            });
+
+            dataTable.innerHTML = tableHTML;
+
+            // Show table
+            dataTable.style.display = 'table'; // or 'block' if you prefer
+
+            // Update page navigation
+            var paginationInfo = document.getElementById('paginationInfo');
+            paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        } else {
+            // Clear the table if input values are empty
+            document.getElementById('dataTable').innerHTML = '';
         }
-
-      // Function to update table
-function updateTable() {
-    var inputXXX = document.getElementById('inputXXX').value;
-    var inputYYY = document.getElementById('inputYYY').value;
-
-    // Check if input values are not empty
-    if (inputXXX.trim() !== '' && inputYYY.trim() !== '') {
-        var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th></tr>';
-        var dataTable = document.getElementById('dataTable');
-        csvData.forEach(row => {
-            var rowHTML = '<tr>';
-            
-            rowHTML += '<td>' + row.ChannelName + '</td>';
-
-            // Replace XXX and YYY in the Stream URL with user input values
-var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
-
-// Create a hyperlink to copy the stream URL to clipboard
-var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
-rowHTML += copyLinkHTML;
-
-
-
-            rowHTML += '</tr>';
-            tableHTML += rowHTML;
-        });
-        dataTable.innerHTML = tableHTML;
-        
-        // Show table
-        dataTable.style.display = 'table'; // or 'block' if you prefer
-    } else {
-        // Clear the table if input values are empty
-        document.getElementById('dataTable').innerHTML = '';
-    }
-}
-
-     // Function to filter data
-function filter() {
-    var searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    var filteredData = csvData.filter(row => {
-        // Check if the row has the 'Channel Name' property and if it includes the search term
-        return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
-    });
-
-    var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th></tr>';
-    for (var i = 0; i < filteredData.length; i++) {
-        var row = filteredData[i];
-        var rowHTML = '<tr>';
-    
-        rowHTML += '<td>' + row.ChannelName + '</td>';
-
-      // Replace XXX and YYY in the Stream URL with user input values
-var inputXXX = document.getElementById('inputXXX').value;
-var inputYYY = document.getElementById('inputYYY').value;
-var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
-
-// Create a hyperlink to copy the stream URL to clipboard
-var copyLinkHTML = '<td><a href="#" onclick="copyToClipboard(\'' + streamURL + '\', event)">Copy</a></td>';
-rowHTML += copyLinkHTML;
-
-
-
-
-        rowHTML += '</tr>';
-        tableHTML += rowHTML;
     }
 
-    var dataTable = document.getElementById('dataTable');
-    dataTable.innerHTML = tableHTML;
-    dataTable.style.display = filteredData.length > 0 ? 'table' : 'none'; // Show table if data found, hide otherwise
-}
+    // Function to go to the next page
+    function nextPage() {
+        var totalPages = Math.ceil(csvData.length / rowsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            updateTable();
+        }
+    }
 
+    // Function to go to the previous page
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            updateTable();
+        }
+    }
+
+    // Fetch CSV data from GitHub when the page loads
+    window.onload = fetchCSVFromGitHub;
 
 // Function to copy text to clipboard and show notification
 function copyToClipboard(url, event) {
@@ -167,9 +165,6 @@ function copyToClipboard(url, event) {
 }
 
 
-
-        // Fetch CSV data from GitHub when the page loads
-        window.onload = fetchCSVFromGitHub;
     </script>
 
     
