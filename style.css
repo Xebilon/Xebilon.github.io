@@ -46,14 +46,17 @@ button:hover {
 }
 
 #tableContainer {
-    display: inline-block;
     border-collapse: collapse;
     margin: 25px auto; /* Centering the table */
     font-size: 0.9em;
     font-family: sans-serif;
-    min-width: 200px;
+    width: 30%; /* Set the width to 30% of the screen */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     text-align: center; /* Centering table content */
+}
+
+#tableContainer table {
+    width: 100%; /* Make the table fill the container */
 }
 
 #tableContainer tbody tr {
@@ -66,12 +69,6 @@ button:hover {
 
 #tableContainer tbody tr:last-of-type {
     border-bottom: 2px solid #009879;
-}
-
-table {
-    /* width: 50%; */ /* Commented out to allow natural width */
-    border-collapse: collapse;
-    margin-top: 10px;
 }
 
 th, td {
