@@ -52,6 +52,7 @@ button:hover {
     font-family: sans-serif;
     min-width: 200px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    text-align: center; /* Centering table content */
 }
 
 #tableContainer tbody tr {
