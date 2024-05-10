@@ -143,9 +143,19 @@ function copyToClipboard(url, event) {
     notification.textContent = 'URL copied! Paste it in VLC.';
     notification.className = 'copy-notification';
 
-    // Position the notification near the mouse pointer or the clicked link
-    notification.style.top = (event.pageY || event.clientY + document.documentElement.scrollTop) + 'px';
-    notification.style.left = (event.pageX || event.clientX + document.documentElement.scrollLeft) + 'px';
+    // Calculate notification position
+    var posX, posY;
+    if (event) {
+        posX = event.pageX || event.clientX + document.documentElement.scrollLeft;
+        posY = event.pageY || event.clientY + document.documentElement.scrollTop;
+    } else {
+        posX = window.innerWidth / 2;
+        posY = window.innerHeight / 2;
+    }
+
+    // Position the notification near the mouse pointer or centered on the viewport
+    notification.style.top = posY + 'px';
+    notification.style.left = posX + 'px';
 
     document.body.appendChild(notification);
 
