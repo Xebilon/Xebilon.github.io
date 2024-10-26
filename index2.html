@@ -51,7 +51,7 @@
     </style>
 </head>
 <body>
-    <h1>Content 5</h1>
+    <h1>Content 3</h1>
     <nav>
         <button onclick="showTable('Live')" class="active" id="btnLive">Live</button>
         <button onclick="showTable('Movies')" id="btnMovies">Movies</button>
@@ -103,7 +103,9 @@
                 return parsedData.filter(item => item.link && item.link.includes("movie"));
             }
             if (category === "Series") {
-                return parsedData.filter(item => item.link && item.link.includes("series"));
+                const seriesData = parsedData.filter(item => item.link && item.link.includes("series"));
+                console.log("Filtered Series Data:", seriesData); // Debugging: Log filtered series data
+                return seriesData;
             }
         }
 
