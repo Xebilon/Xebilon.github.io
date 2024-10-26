@@ -3,156 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database 2</title>
-    <link rel="stylesheet" href="style2.css">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>Content Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        nav {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        button.active {
+            background-color: #0056b3;
+        }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <h1>Database 2</h1>
-    <center>
-        <label for="inputXXX">Username:</label>
-        <input type="text" id="inputXXX" placeholder="Enter Username..." oninput="updateTable()">
-        <label for="inputYYY">Password:</label>
-        <input type="text" id="inputYYY" placeholder="Enter Password..." oninput="updateTable()">
-        <br><br>
-        <input type="text" id="searchInput" placeholder="Channel/Movie...">
-        <br><br>
-        <button onclick="filter()">Filter</button>
+    <h1>Content Viewer</h1>
+    <nav>
+        <button onclick="showTable('Live')" class="active" id="btnLive">Live</button>
+        <button onclick="showTable('Movies')" id="btnMovies">Movies</button>
+        <button onclick="showTable('Series')" id="btnSeries">Series</button>
+    </nav>
 
-        <div id="paginationControls">
-            <button onclick="prevPage()"><< Prev</button>
-            <button onclick="nextPage()">Next >></button>
-        </div>
-        <div id="paginationInfo"></div>
-
-        <div id="tableContainer">
-            <table id="dataTable" style="display: none;"></table>
-        </div>
-        
-        <!-- Video Player Section -->
-        <h2>Video Player</h2>
-        <video id="video" controls autoplay crossorigin="anonymous"></video>
-    </center>
+    <table id="contentTable">
+        <thead id="tableHeader"></thead>
+        <tbody id="tableBody"></tbody>
+    </table>
 
     <script>
-        var csvData = [];
-        var rowsPerPage = 15; // Number of rows to display per page
-        var currentPage = 1; // Current page
-        var csvDataFiltered = []; // Store filtered data
+        const liveHeaders = ["Group", "Channel", "Link"];
+        const movieHeaders = ["Group", "Name", "Link"];
+        const seriesHeaders = ["Group", "Name", "Link"];
+        let parsedData = [];
 
-        // Function to filter data
-        function filter() {
-            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            var filteredData = csvData.filter(row => {
-                return row.ChannelName && row.ChannelName.toLowerCase().includes(searchTerm);
+        async function loadData() {
+            try {
+                const response = await fetch("list.txt");
+                const data = await response.text();
+                parsedData = parseData(data);
+                showTable('Live');
+            } catch (error) {
+                console.error("Error loading file:", error);
+            }
+        }
+
+        function parseData(data) {
+            return data.trim().split('\n\n').map(block => {
+                const [info, link] = block.split('\n');
+                const groupMatch = info.match(/group-title="([^"]+)"/);
+                const nameMatch = info.match(/tvg-name="([^"]+)"/);
+                return {
+                    group: groupMatch ? groupMatch[1] : "",
+                    name: nameMatch ? nameMatch[1] : "",
+                    link: link || ""
+                };
             });
-
-            currentPage = 1; // Reset current page to 1 when filtering
-            csvDataFiltered = filteredData; // Store filtered data
-            updateTable(); // Update the table with filtered data
         }
 
-        // Function to fetch CSV data from GitHub
-        function fetchCSVFromGitHub() {
-            fetch('https://raw.githubusercontent.com/Xebilon/Xebilon.github.io/main/Bok2.csv')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
-                .then(csvText => {
-                    csvData = csvText.split('\n').map(row => row.split(','));
-
-                    // Convert CSV data to array of objects
-                    csvData = csvData.slice(1).map(row => {
-                        return {
-                            ChannelName: row[2],
-                            StreamURL: row[8]
-                        };
-                    });
-
-                    // Populate table with rows as they are loaded
-                    csvDataFiltered = csvData; // Initialize with unfiltered data
-                    updateTable();
-                })
-                .catch(error => {
-                    console.error('Error fetching CSV data:', error);
-                });
+        function filterData(category) {
+            if (category === "Live") return parsedData.filter(item => !item.link.includes("movie") && !item.link.includes("series"));
+            if (category === "Movies") return parsedData.filter(item => item.link.includes("movie"));
+            if (category === "Series") return parsedData.filter(item => item.link.includes("series"));
         }
 
-        // Function to update table
-        function updateTable() {
-            var inputXXX = document.getElementById('inputXXX').value;
-            var inputYYY = document.getElementById('inputYYY').value;
+        function populateTable(data, headers) {
+            const tableHeader = document.getElementById("tableHeader");
+            const tableBody = document.getElementById("tableBody");
 
-            var tableHTML = '<tr><th>Channel Name</th><th>Stream URL</th></tr>';
-            var dataTable = document.getElementById('dataTable');
-
-            var start = (currentPage - 1) * rowsPerPage;
-            var end = start + rowsPerPage;
-            var totalPages = Math.ceil(csvDataFiltered.length / rowsPerPage);
-
-            csvDataFiltered.slice(start, end).forEach(row => {
-                var rowHTML = '<tr>';
-                rowHTML += '<td>' + row.ChannelName + '</td>';
-
-                // Replace XXX and YYY in the Stream URL with user input values
-                var streamURL = row.StreamURL.replace('XXX', inputXXX).replace('YYY', inputYYY);
-
-                // Create a link to play the stream URL dynamically
-                var playLinkHTML = '<td><a href="#" onclick="PlayVideo(\'' + streamURL + '\'); event.preventDefault();">Play</a></td>';
-                rowHTML += playLinkHTML;
-
-                rowHTML += '</tr>';
-                tableHTML += rowHTML;
-            });
-
-            dataTable.innerHTML = tableHTML;
-            dataTable.style.display = 'table';
-
-            // Update page navigation
-            var paginationInfo = document.getElementById('paginationInfo');
-            paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
+            tableBody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.group}</td>
+                    <td>${item.name}</td>
+                    <td><a href="${item.link}" target="_blank">${item.link}</a></td>
+                </tr>
+            `).join("");
         }
 
-        // Function to go to the next page
-        function nextPage() {
-            var totalPages = Math.ceil(csvDataFiltered.length / rowsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                updateTable();
-            }
+        function showTable(category) {
+            document.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
+            document.getElementById(`btn${category}`).classList.add("active");
+
+            const filteredData = filterData(category);
+            const headers = category === "Live" ? liveHeaders : category === "Movies" ? movieHeaders : seriesHeaders;
+            populateTable(filteredData, headers);
         }
 
-        // Function to go to the previous page
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                updateTable();
-            }
-        }
-
-        // Function to play the video stream
-        function PlayVideo(videoSrc) {
-            var video = document.getElementById('video');
-            if (Hls.isSupported()) {
-                var hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    video.play();
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSrc;
-                video.addEventListener('loadedmetadata', function () {
-                    video.play();
-                });
-            }
-        }
-
-        // Fetch CSV data from GitHub when the page loads
-        window.onload = fetchCSVFromGitHub;
+        loadData();
     </script>
 </body>
 </html>
