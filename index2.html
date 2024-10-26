@@ -51,7 +51,7 @@
     </style>
 </head>
 <body>
-    <h1>Content 2</h1>
+    <h1>Content Viewer</h1>
     <nav>
         <button onclick="showTable('Live')" class="active" id="btnLive">Live</button>
         <button onclick="showTable('Movies')" id="btnMovies">Movies</button>
@@ -71,12 +71,10 @@
 
         async function loadData() {
             try {
-                const response = await fetch("list2.txt");
+                const response = await fetch("list.txt");
                 const data = await response.text();
-                console.log("File Content:\n", data); // Debugging: Check if file content is loaded
                 parsedData = parseData(data);
-                console.log("Parsed Data:", parsedData); // Debugging: Check if data is parsed correctly
-                showTable('Live'); // Display Live content by default
+                showTable('Live');
             } catch (error) {
                 console.error("Error loading file:", error);
             }
@@ -85,36 +83,32 @@
         function parseData(data) {
             return data.trim().split('\n\n').map(block => {
                 const [info, link] = block.split('\n');
-                const groupMatch = info.match(/group-title="([^"]*)"/);
-                const nameMatch = info.match(/tvg-name="([^"]*)"/);
-                const url = link && link.startsWith("http") ? link.trim() : "";
-
+                const groupMatch = info.match(/group-title="([^"]+)"/);
+                const nameMatch = info.match(/tvg-name="([^"]+)"/);
                 return {
                     group: groupMatch ? groupMatch[1] : "",
                     name: nameMatch ? nameMatch[1] : "",
-                    link: url
+                    link: link || ""
                 };
             });
         }
 
         function filterData(category) {
-            console.log("Filter Category:", category); // Debugging: Check selected category
-            // Temporary - Show all parsed data regardless of category
-            return parsedData;
+            if (category === "Live") return parsedData.filter(item => !item.link.includes("movie") && !item.link.includes("series"));
+            if (category === "Movies") return parsedData.filter(item => item.link.includes("movie"));
+            if (category === "Series") return parsedData.filter(item => item.link.includes("series"));
         }
 
         function populateTable(data, headers) {
             const tableHeader = document.getElementById("tableHeader");
             const tableBody = document.getElementById("tableBody");
 
-            console.log("Data to Display:", data); // Debugging: Confirm data passed to table
-
             tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
             tableBody.innerHTML = data.map(item => `
                 <tr>
-                    <td>${item.group || "N/A"}</td>
-                    <td>${item.name || "N/A"}</td>
-                    <td><a href="${item.link || "#"}" target="_blank">${item.link || "N/A"}</a></td>
+                    <td>${item.group}</td>
+                    <td>${item.name}</td>
+                    <td><a href="${item.link}" target="_blank">${item.link}</a></td>
                 </tr>
             `).join("");
         }
