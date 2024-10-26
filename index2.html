@@ -51,7 +51,7 @@
     </style>
 </head>
 <body>
-    <h1>Content Viewer</h1>
+    <h1>Content 2</h1>
     <nav>
         <button onclick="showTable('Live')" class="active" id="btnLive">Live</button>
         <button onclick="showTable('Movies')" id="btnMovies">Movies</button>
@@ -76,7 +76,7 @@
                 console.log("File Content:\n", data); // Debugging: Check if file content is loaded
                 parsedData = parseData(data);
                 console.log("Parsed Data:", parsedData); // Debugging: Check if data is parsed correctly
-                showTable('Live');
+                showTable('Live'); // Display Live content by default
             } catch (error) {
                 console.error("Error loading file:", error);
             }
@@ -98,29 +98,25 @@
         }
 
         function filterData(category) {
-            console.log("Category Filter:", category); // Debugging: Check selected category
-            // Temporary filter to display all parsed data regardless of category
+            console.log("Filter Category:", category); // Debugging: Check selected category
+            // Temporary - Show all parsed data regardless of category
             return parsedData;
-
-            // Uncomment to apply specific category filters
-            // if (category === "Live") return parsedData.filter(item => item.link && !item.link.includes("movie") && !item.link.includes("series"));
-            // if (category === "Movies") return parsedData.filter(item => item.link && item.link.includes("movie"));
-            // if (category === "Series") return parsedData.filter(item => item.link && item.link.includes("series"));
         }
 
         function populateTable(data, headers) {
             const tableHeader = document.getElementById("tableHeader");
             const tableBody = document.getElementById("tableBody");
 
+            console.log("Data to Display:", data); // Debugging: Confirm data passed to table
+
             tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
             tableBody.innerHTML = data.map(item => `
                 <tr>
-                    <td>${item.group}</td>
-                    <td>${item.name}</td>
-                    <td><a href="${item.link}" target="_blank">${item.link}</a></td>
+                    <td>${item.group || "N/A"}</td>
+                    <td>${item.name || "N/A"}</td>
+                    <td><a href="${item.link || "#"}" target="_blank">${item.link || "N/A"}</a></td>
                 </tr>
             `).join("");
-            console.log("Table Data:", data); // Debugging: Check data being displayed in the table
         }
 
         function showTable(category) {
