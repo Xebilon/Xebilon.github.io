@@ -51,7 +51,7 @@
     </style>
 </head>
 <body>
-    <h1>Content Viewer</h1>
+    <h1>Content 5</h1>
     <nav>
         <button onclick="showTable('Live')" class="active" id="btnLive">Live</button>
         <button onclick="showTable('Movies')" id="btnMovies">Movies</button>
@@ -81,22 +81,30 @@
         }
 
         function parseData(data) {
-            return data.trim().split('\n\n').map(block => {
-                const [info, link] = block.split('\n');
-                const groupMatch = info.match(/group-title="([^"]+)"/);
-                const nameMatch = info.match(/tvg-name="([^"]+)"/);
-                return {
-                    group: groupMatch ? groupMatch[1] : "",
-                    name: nameMatch ? nameMatch[1] : "",
-                    link: link || ""
-                };
-            });
+            return data.split('\n').reduce((acc, line) => {
+                if (line.startsWith('#EXTINF')) {
+                    const groupMatch = line.match(/group-title="([^"]+)"/);
+                    const nameMatch = line.match(/tvg-name="([^"]+)"/);
+                    const group = groupMatch ? groupMatch[1] : "";
+                    const name = nameMatch ? nameMatch[1] : "";
+                    acc.push({ group, name, link: "" }); // Start a new entry without link
+                } else if (line.startsWith('http')) {
+                    acc[acc.length - 1].link = line.trim(); // Add link to the last entry
+                }
+                return acc;
+            }, []);
         }
 
         function filterData(category) {
-            if (category === "Live") return parsedData.filter(item => !item.link.includes("movie") && !item.link.includes("series"));
-            if (category === "Movies") return parsedData.filter(item => item.link.includes("movie"));
-            if (category === "Series") return parsedData.filter(item => item.link.includes("series"));
+            if (category === "Live") {
+                return parsedData.filter(item => item.link && !item.link.includes("movie") && !item.link.includes("series"));
+            }
+            if (category === "Movies") {
+                return parsedData.filter(item => item.link && item.link.includes("movie"));
+            }
+            if (category === "Series") {
+                return parsedData.filter(item => item.link && item.link.includes("series"));
+            }
         }
 
         function populateTable(data, headers) {
@@ -106,9 +114,9 @@
             tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
             tableBody.innerHTML = data.map(item => `
                 <tr>
-                    <td>${item.group}</td>
-                    <td>${item.name}</td>
-                    <td><a href="${item.link}" target="_blank">${item.link}</a></td>
+                    <td>${item.group || "N/A"}</td>
+                    <td>${item.name || "N/A"}</td>
+                    <td><a href="${item.link || "#"}" target="_blank">${item.link || "N/A"}</a></td>
                 </tr>
             `).join("");
         }
