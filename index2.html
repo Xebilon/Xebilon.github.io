@@ -71,7 +71,7 @@
 
         async function loadData() {
             try {
-                const response = await fetch("list.txt");
+                const response = await fetch("list2.txt");
                 const data = await response.text();
                 parsedData = parseData(data);
                 showTable('Live');
