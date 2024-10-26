@@ -83,20 +83,22 @@
         function parseData(data) {
             return data.trim().split('\n\n').map(block => {
                 const [info, link] = block.split('\n');
-                const groupMatch = info.match(/group-title="([^"]+)"/);
-                const nameMatch = info.match(/tvg-name="([^"]+)"/);
+                const groupMatch = info.match(/group-title="([^"]*)"/);
+                const nameMatch = info.match(/tvg-name="([^"]*)"/);
+                const url = link && link.startsWith("http") ? link.trim() : "";
+
                 return {
                     group: groupMatch ? groupMatch[1] : "",
                     name: nameMatch ? nameMatch[1] : "",
-                    link: link || ""
+                    link: url
                 };
             });
         }
 
         function filterData(category) {
-            if (category === "Live") return parsedData.filter(item => !item.link.includes("movie") && !item.link.includes("series"));
-            if (category === "Movies") return parsedData.filter(item => item.link.includes("movie"));
-            if (category === "Series") return parsedData.filter(item => item.link.includes("series"));
+            if (category === "Live") return parsedData.filter(item => item.link && !item.link.includes("movie") && !item.link.includes("series"));
+            if (category === "Movies") return parsedData.filter(item => item.link && item.link.includes("movie"));
+            if (category === "Series") return parsedData.filter(item => item.link && item.link.includes("series"));
         }
 
         function populateTable(data, headers) {
