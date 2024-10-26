@@ -73,7 +73,9 @@
             try {
                 const response = await fetch("list2.txt");
                 const data = await response.text();
+                console.log("File Content:\n", data); // Debugging: Check if file content is loaded
                 parsedData = parseData(data);
+                console.log("Parsed Data:", parsedData); // Debugging: Check if data is parsed correctly
                 showTable('Live');
             } catch (error) {
                 console.error("Error loading file:", error);
@@ -96,9 +98,14 @@
         }
 
         function filterData(category) {
-            if (category === "Live") return parsedData.filter(item => item.link && !item.link.includes("movie") && !item.link.includes("series"));
-            if (category === "Movies") return parsedData.filter(item => item.link && item.link.includes("movie"));
-            if (category === "Series") return parsedData.filter(item => item.link && item.link.includes("series"));
+            console.log("Category Filter:", category); // Debugging: Check selected category
+            // Temporary filter to display all parsed data regardless of category
+            return parsedData;
+
+            // Uncomment to apply specific category filters
+            // if (category === "Live") return parsedData.filter(item => item.link && !item.link.includes("movie") && !item.link.includes("series"));
+            // if (category === "Movies") return parsedData.filter(item => item.link && item.link.includes("movie"));
+            // if (category === "Series") return parsedData.filter(item => item.link && item.link.includes("series"));
         }
 
         function populateTable(data, headers) {
@@ -113,6 +120,7 @@
                     <td><a href="${item.link}" target="_blank">${item.link}</a></td>
                 </tr>
             `).join("");
+            console.log("Table Data:", data); // Debugging: Check data being displayed in the table
         }
 
         function showTable(category) {
