@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Viewer</title>
     <style>
-        /* CSS for styling remains the same */
         body {
             font-family: Arial, sans-serif;
             background-color: #1e1e1e;
             color: #ffffff;
             display: flex;
         }
-        /* Sidebar styles */
         #sidebar {
             width: 200px;
             background-color: #333;
@@ -31,7 +29,6 @@
         #sidebar button.active {
             background-color: #555;
         }
-        /* Main content styles */
         #content {
             flex-grow: 1;
             padding: 20px;
@@ -49,7 +46,6 @@
             border: 1px solid #666;
             margin-right: 10px;
         }
-        /* Accordion styles */
         .accordion-item {
             background-color: #222;
             margin-bottom: 10px;
@@ -105,6 +101,7 @@
         async function loadData() {
             try {
                 const response = await fetch("list.txt");
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.text();
                 parseData(data);
                 showTable("Live");  // Load initial view
@@ -194,7 +191,8 @@
         function showTable(category) {
             currentCategory = category;
             document.querySelectorAll("#sidebar button").forEach(btn => btn.classList.remove("active"));
-            document.querySelector(`#sidebar button:contains("${category}")`).classList.add("active");
+            btn = Array.from(document.querySelectorAll("#sidebar button")).find(btn => btn.innerText === category);
+            if (btn) btn.classList.add("active");
 
             const filteredData = parsedData[category];
             populateAccordion(filteredData);
