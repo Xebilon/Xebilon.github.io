@@ -100,19 +100,17 @@
 
         async function loadData() {
             try {
-                // Load Live and Movies from list.txt
                 const response1 = await fetch("list.txt");
                 if (!response1.ok) throw new Error(`HTTP error! status: ${response1.status}`);
                 const data1 = await response1.text();
-                parseData(data1, ['Live', 'Movies']); // Pass categories to parse
+                parseData(data1, ['Live', 'Movies']);
 
-                // Load Series from list3.txt
                 const response2 = await fetch("list3.txt");
                 if (!response2.ok) throw new Error(`HTTP error! status: ${response2.status}`);
                 const data2 = await response2.text();
-                parseData(data2, ['Series']); // Pass category to parse
+                parseData(data2, ['Series']);
 
-                showTable("Live");  // Load initial view
+                showTable("Live");
             } catch (error) {
                 console.error("Error loading files:", error);
             }
@@ -120,7 +118,7 @@
 
         function parseData(data, categories) {
             const lines = data.trim().split("\n");
-            for (let i = 0; i < lines.length; i += 2) {  // Process pairs of lines
+            for (let i = 0; i < lines.length; i += 2) {
                 const infoLine = lines[i];
                 const linkLine = lines[i + 1];
 
@@ -133,7 +131,6 @@
                     link: linkLine || ""
                 };
 
-                // Categorizing entries based on the categories provided
                 if (categories.includes('Movies') && entry.link.includes("movie")) {
                     parsedData.Movies.push(entry);
                 } else if (categories.includes('Series') && entry.link.includes("series")) {
@@ -164,6 +161,7 @@
 
             for (const [group, items] of Object.entries(groupedData)) {
                 const itemCount = items.length;
+                const seriesGrouped = groupSeries(items);
                 const itemHTML = `
                     <div class="accordion-item">
                         <div class="accordion-title" onclick="toggleAccordion(this)">
@@ -171,27 +169,45 @@
                             <span>(${itemCount})</span>
                         </div>
                         <div class="accordion-content">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>URL</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${items.map(item => `
-                                        <tr>
-                                            <td>${item.name}</td>
-                                            <td><a href="${item.link}" target="_blank">${item.link}</a></td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
+                            ${seriesGrouped}
                         </div>
                     </div>
                 `;
                 accordionContainer.insertAdjacentHTML("beforeend", itemHTML);
             }
+        }
+
+        function groupSeries(items) {
+            const seriesMap = {};
+
+            items.forEach(item => {
+                const nameParts = item.name.split(" ");
+                const mainTitle = nameParts.slice(0, nameParts.length - 2).join(" ");
+                const season = nameParts.find(part => part.startsWith("S")) || "Unknown";
+                const episode = nameParts.find(part => part.startsWith("E")) || "Unknown";
+
+                if (!seriesMap[mainTitle]) {
+                    seriesMap[mainTitle] = {};
+                }
+                if (!seriesMap[mainTitle][season]) {
+                    seriesMap[mainTitle][season] = [];
+                }
+                seriesMap[mainTitle][season].push({ name: episode, link: item.link });
+            });
+
+            let html = "";
+            for (const [title, seasons] of Object.entries(seriesMap)) {
+                html += `<div class="accordion-item"><div class="accordion-title" onclick="toggleAccordion(this)"><span>${title}</span></div><div class="accordion-content">`;
+                for (const [season, episodes] of Object.entries(seasons)) {
+                    html += `<div class="accordion-item"><div class="accordion-title" onclick="toggleAccordion(this)"><span>${season}</span></div><div class="accordion-content">`;
+                    episodes.forEach(ep => {
+                        html += `<div>${ep.name} - <a href="${ep.link}" target="_blank">${ep.link}</a></div>`;
+                    });
+                    html += `</div></div>`;
+                }
+                html += `</div></div>`;
+            }
+            return html;
         }
 
         function toggleAccordion(element) {
