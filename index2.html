@@ -118,35 +118,54 @@
 
         // Load and parse data from file
         async function loadData() {
-            const response = await fetch("list.txt");
-            const data = await response.text();
-            const items = parseData(data);
+            try {
+                const response = await fetch("list.txt");
+                const data = await response.text();
+                
+                // Split into blocks by matching each channel section
+                const items = parseData(data);
 
-            items.forEach(item => {
-                if (item.link.includes("movie")) {
-                    parsedData.Movies.push(item);
-                } else if (item.link.includes("series")) {
-                    parsedData.Series.push(item);
-                } else {
-                    parsedData.Live.push(item);
-                }
-            });
+                // Categorize each parsed item
+                items.forEach(item => {
+                    if (item.link.includes("movie")) {
+                        parsedData.Movies.push(item);
+                    } else if (item.link.includes("series")) {
+                        parsedData.Series.push(item);
+                    } else {
+                        parsedData.Live.push(item);
+                    }
+                });
 
-            showTable('Live');
+                showTable('Live');
+            } catch (error) {
+                console.error("Error loading file:", error);
+            }
         }
 
         // Parse raw text data into structured objects
         function parseData(data) {
-            return data.trim().split('\n\n').map(block => {
-                const [info, link] = block.split('\n');
-                const groupMatch = info.match(/group-title="([^"]+)"/);
-                const nameMatch = info.match(/tvg-name="([^"]+)"/);
-                return {
-                    group: groupMatch ? groupMatch[1] : "No Group",
-                    name: nameMatch ? nameMatch[1] : "No Name",
-                    link: link || ""
-                };
+            const lines = data.trim().split('\n');
+            const items = [];
+            let currentItem = { group: "", name: "", link: "" };
+
+            lines.forEach(line => {
+                if (line.startsWith("#EXTINF")) {
+                    if (currentItem.name) items.push(currentItem); // Add previous item before starting a new one
+                    const groupMatch = line.match(/group-title="([^"]+)"/);
+                    const nameMatch = line.match(/tvg-name="([^"]+)"/);
+                    currentItem = {
+                        group: groupMatch ? groupMatch[1] : "No Group",
+                        name: nameMatch ? nameMatch[1] : "No Name",
+                        link: ""
+                    };
+                } else if (line.startsWith("http")) {
+                    currentItem.link = line;
+                }
             });
+
+            if (currentItem.name) items.push(currentItem); // Push the last item
+
+            return items;
         }
 
         // Show table for the selected category (Live, Movies, Series)
@@ -163,6 +182,7 @@
         function populateAccordion(data) {
             const accordionContainer = document.getElementById("accordionContainer");
             accordionContainer.innerHTML = "";
+
             const groupedData = data.reduce((acc, item) => {
                 if (!acc[item.group]) acc[item.group] = [];
                 acc[item.group].push(item);
