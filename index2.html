@@ -111,26 +111,29 @@
         }
 
         function parseData(data) {
-            const blocks = data.trim().split("\n\n");
-            blocks.forEach(block => {
-                const [info, link] = block.split("\n");
-                const groupMatch = info.match(/group-title="([^"]+)"/);
-                const nameMatch = info.match(/tvg-name="([^"]+)"/);
+            const lines = data.trim().split("\n");
+            for (let i = 0; i < lines.length; i += 2) {  // Process pairs of lines
+                const infoLine = lines[i];
+                const linkLine = lines[i + 1];
+
+                const groupMatch = infoLine.match(/group-title="([^"]+)"/);
+                const nameMatch = infoLine.match(/tvg-name="([^"]+)"/);
 
                 const entry = {
                     group: groupMatch ? groupMatch[1] : "",
                     name: nameMatch ? nameMatch[1] : "",
-                    link: link || ""
+                    link: linkLine || ""
                 };
 
-                if (link.includes("movie")) {
+                // Categorizing entries based on the link
+                if (entry.link.includes("movie")) {
                     parsedData.Movies.push(entry);
-                } else if (link.includes("series")) {
+                } else if (entry.link.includes("series")) {
                     parsedData.Series.push(entry);
                 } else {
                     parsedData.Live.push(entry);
                 }
-            });
+            }
         }
 
         function filterContent() {
@@ -191,7 +194,7 @@
         function showTable(category) {
             currentCategory = category;
             document.querySelectorAll("#sidebar button").forEach(btn => btn.classList.remove("active"));
-            btn = Array.from(document.querySelectorAll("#sidebar button")).find(btn => btn.innerText === category);
+            const btn = Array.from(document.querySelectorAll("#sidebar button")).find(btn => btn.innerText === category);
             if (btn) btn.classList.add("active");
 
             const filteredData = parsedData[category];
