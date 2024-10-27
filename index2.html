@@ -75,6 +75,17 @@
             background-color: #555;
             color: white;
         }
+        .copy-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -175,14 +186,17 @@
                                 <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>URL</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${items.map(item => `
                                         <tr>
                                             <td>${item.name}</td>
-                                            <td><a href="${item.link}" target="_blank">${item.link}</a></td>
+                                            <td>
+                                                <span class="hidden-url" style="display:none;">${item.link}</span>
+                                                <button class="copy-button" onclick="copyToClipboard('${item.link}')">Copy</button>
+                                            </td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -207,6 +221,14 @@
 
             const filteredData = parsedData[category];
             populateAccordion(filteredData);
+        }
+
+        function copyToClipboard(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('URL copied to clipboard!');
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
         }
 
         loadData();
