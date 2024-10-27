@@ -5,67 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Viewer</title>
     <style>
+        /* Basic Layout */
         body {
             font-family: Arial, sans-serif;
             background-color: #1c1c1c;
             color: #fff;
             margin: 0;
-            padding: 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
         }
-        h1 {
-            color: #fff;
-            text-align: center;
-            margin-top: 20px;
-        }
+        /* Sidebar */
         nav {
-            display: flex;
-            flex-direction: column;
             width: 200px;
             background-color: #252525;
-            height: 100vh;
             padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
         nav button {
             background-color: transparent;
             color: #fff;
-            padding: 10px 20px;
+            padding: 15px 20px;
             border: none;
             text-align: left;
             width: 100%;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
         }
         nav button.active {
             background-color: #333;
             color: #ff0077;
             font-weight: bold;
         }
+        /* Main Content Area */
         #mainContent {
-            width: 100%;
-            max-width: 800px;
+            flex: 1;
             padding: 20px;
         }
         #searchContainer {
-            display: flex;
             margin-bottom: 20px;
-            align-items: center;
         }
         #searchContainer input {
             width: 100%;
             padding: 10px;
             font-size: 16px;
             border: none;
-            outline: none;
             background-color: #333;
             color: #fff;
             border-radius: 5px;
-            margin-right: 10px;
+            outline: none;
         }
+        /* Accordion Styles */
         .accordion-item {
             border-bottom: 1px solid #444;
+            margin-bottom: 10px;
         }
         .accordion-title {
             display: flex;
@@ -74,15 +67,13 @@
             padding: 10px;
             font-weight: bold;
             background-color: #333;
+            color: #fff;
             align-items: center;
-        }
-        .accordion-title:hover {
-            background-color: #444;
         }
         .accordion-content {
             display: none;
             padding: 10px;
-            background-color: #1c1c1c;
+            background-color: #222;
         }
         .accordion-content table {
             width: 100%;
@@ -102,12 +93,14 @@
     </style>
 </head>
 <body>
+    <!-- Sidebar for Navigation -->
     <nav>
         <button onclick="showTable('Live')" class="active" id="btnLive">Channels</button>
         <button onclick="showTable('Movies')" id="btnMovies">Movies</button>
         <button onclick="showTable('Series')" id="btnSeries">TV Series</button>
     </nav>
 
+    <!-- Main Content with Search and Accordion -->
     <div id="mainContent">
         <div id="searchContainer">
             <input type="text" id="searchInput" placeholder="Search..." oninput="filterContent()">
@@ -116,12 +109,14 @@
     </div>
 
     <script>
+        // Data containers
         const parsedData = {
             "Live": [],
             "Movies": [],
             "Series": []
         };
 
+        // Load and parse data from file
         async function loadData() {
             const response = await fetch("list.txt");
             const data = await response.text();
@@ -140,6 +135,7 @@
             showTable('Live');
         }
 
+        // Parse raw text data into structured objects
         function parseData(data) {
             return data.trim().split('\n\n').map(block => {
                 const [info, link] = block.split('\n');
@@ -153,13 +149,17 @@
             });
         }
 
+        // Show table for the selected category (Live, Movies, Series)
         function showTable(category) {
+            // Update active button
             document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
             document.getElementById(`btn${category}`).classList.add("active");
 
+            // Populate the accordion with filtered data
             populateAccordion(parsedData[category]);
         }
 
+        // Populate the accordion structure
         function populateAccordion(data) {
             const accordionContainer = document.getElementById("accordionContainer");
             accordionContainer.innerHTML = "";
@@ -201,11 +201,13 @@
             }
         }
 
+        // Toggle display of accordion items
         function toggleAccordion(element) {
             const content = element.nextElementSibling;
             content.style.display = content.style.display === "block" ? "none" : "block";
         }
 
+        // Filter groups by search input
         function filterContent() {
             const query = document.getElementById("searchInput").value.toLowerCase();
             const accordionItems = document.querySelectorAll(".accordion-item");
@@ -216,6 +218,7 @@
             });
         }
 
+        // Load data on page load
         loadData();
     </script>
 </body>
