@@ -5,113 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Viewer</title>
     <style>
-        /* Basic Layout */
+        /* CSS for styling remains the same */
         body {
             font-family: Arial, sans-serif;
-            background-color: #1c1c1c;
-            color: #fff;
-            margin: 0;
+            background-color: #1e1e1e;
+            color: #ffffff;
             display: flex;
         }
-        /* Sidebar */
-        nav {
+        /* Sidebar styles */
+        #sidebar {
             width: 200px;
-            background-color: #252525;
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        nav button {
-            background-color: transparent;
-            color: #fff;
-            padding: 15px 20px;
-            border: none;
-            text-align: left;
-            width: 100%;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        nav button.active {
             background-color: #333;
-            color: #ff0077;
-            font-weight: bold;
+            padding: 10px;
         }
-        /* Main Content Area */
-        #mainContent {
-            flex: 1;
-            padding: 20px;
-        }
-        #searchContainer {
-            margin-bottom: 20px;
-        }
-        #searchContainer input {
+        #sidebar button {
             width: 100%;
             padding: 10px;
-            font-size: 16px;
-            border: none;
-            background-color: #333;
-            color: #fff;
-            border-radius: 5px;
-            outline: none;
-        }
-        /* Accordion Styles */
-        .accordion-item {
-            border-bottom: 1px solid #444;
             margin-bottom: 10px;
+            color: #fff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+        }
+        #sidebar button.active {
+            background-color: #555;
+        }
+        /* Main content styles */
+        #content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        #searchBar {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            margin-right: 10px;
+        }
+        /* Accordion styles */
+        .accordion-item {
+            background-color: #222;
+            margin-bottom: 10px;
+            border-radius: 5px;
         }
         .accordion-title {
             display: flex;
             justify-content: space-between;
+            padding: 15px;
             cursor: pointer;
-            padding: 10px;
             font-weight: bold;
             background-color: #333;
-            color: #fff;
-            align-items: center;
         }
         .accordion-content {
             display: none;
-            padding: 10px;
-            background-color: #222;
+            padding: 15px;
         }
-        .accordion-content table {
+        table {
             width: 100%;
             border-collapse: collapse;
-            color: #fff;
         }
-        .accordion-content th, .accordion-content td {
-            padding: 8px;
-            text-align: left;
+        th, td {
+            padding: 10px;
+            border: 1px solid #444;
         }
-        .accordion-content th {
-            background-color: #444;
-        }
-        .accordion-content tr:nth-child(even) {
-            background-color: #333;
+        th {
+            background-color: #555;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar for Navigation -->
-    <nav>
-        <button onclick="showTable('Live')" class="active" id="btnLive">Channels</button>
-        <button onclick="showTable('Movies')" id="btnMovies">Movies</button>
-        <button onclick="showTable('Series')" id="btnSeries">TV Series</button>
-    </nav>
-
-    <!-- Main Content with Search and Accordion -->
-    <div id="mainContent">
-        <div id="searchContainer">
+    <div id="sidebar">
+        <button onclick="showTable('Live')" class="active">Channels</button>
+        <button onclick="showTable('Movies')">Movies</button>
+        <button onclick="showTable('Series')">TV Series</button>
+    </div>
+    <div id="content">
+        <div id="searchBar">
             <input type="text" id="searchInput" placeholder="Search..." oninput="filterContent()">
         </div>
         <div id="accordionContainer"></div>
     </div>
 
-       <script>
-        // JavaScript setup and loadData function remain the same
+    <script>
+        const parsedData = {
+            Live: [],
+            Movies: [],
+            Series: []
+        };
+        let currentCategory = "Live";
 
-        // Populate the accordion structure remains the same
+        async function loadData() {
+            try {
+                const response = await fetch("list.txt");
+                const data = await response.text();
+                parseData(data);
+                showTable("Live");  // Load initial view
+            } catch (error) {
+                console.error("Error loading file:", error);
+            }
+        }
+
+        function parseData(data) {
+            const blocks = data.trim().split("\n\n");
+            blocks.forEach(block => {
+                const [info, link] = block.split("\n");
+                const groupMatch = info.match(/group-title="([^"]+)"/);
+                const nameMatch = info.match(/tvg-name="([^"]+)"/);
+
+                const entry = {
+                    group: groupMatch ? groupMatch[1] : "",
+                    name: nameMatch ? nameMatch[1] : "",
+                    link: link || ""
+                };
+
+                if (link.includes("movie")) {
+                    parsedData.Movies.push(entry);
+                } else if (link.includes("series")) {
+                    parsedData.Series.push(entry);
+                } else {
+                    parsedData.Live.push(entry);
+                }
+            });
+        }
+
+        function filterContent() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filteredData = parsedData[currentCategory].filter(item =>
+                item.name.toLowerCase().includes(query)
+            );
+            populateAccordion(filteredData);
+        }
+
         function populateAccordion(data) {
             const accordionContainer = document.getElementById("accordionContainer");
             accordionContainer.innerHTML = "";
@@ -154,28 +186,20 @@
             }
         }
 
-        // Toggle display of accordion items remains the same
         function toggleAccordion(element) {
             const content = element.nextElementSibling;
             content.style.display = content.style.display === "block" ? "none" : "block";
         }
 
-        // Filter items by name instead of group
-        function filterContent() {
-            const query = document.getElementById("searchInput").value.toLowerCase();
-            const filteredData = {
-                "Live": parsedData.Live.filter(item => item.name.toLowerCase().includes(query)),
-                "Movies": parsedData.Movies.filter(item => item.name.toLowerCase().includes(query)),
-                "Series": parsedData.Series.filter(item => item.name.toLowerCase().includes(query))
-            };
+        function showTable(category) {
+            currentCategory = category;
+            document.querySelectorAll("#sidebar button").forEach(btn => btn.classList.remove("active"));
+            document.querySelector(`#sidebar button:contains("${category}")`).classList.add("active");
 
-            // Display the filtered data for the active category
-            const activeCategory = document.querySelector("nav button.active").textContent;
-            showTable(activeCategory);
-            populateAccordion(filteredData[activeCategory]);
+            const filteredData = parsedData[category];
+            populateAccordion(filteredData);
         }
 
-        // Load data on page load
         loadData();
     </script>
 </body>
