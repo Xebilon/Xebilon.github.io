@@ -102,13 +102,13 @@
             try {
                 // Load Live and Movies from list.txt
                 const response1 = await fetch("list.txt");
-                if (!response1.ok) throw new Error(HTTP error! status: ${response1.status});
+                if (!response1.ok) throw new Error(`HTTP error! status: ${response1.status}`);
                 const data1 = await response1.text();
                 parseData(data1, ['Live', 'Movies']); // Pass categories to parse
 
                 // Load Series from list3.txt
                 const response2 = await fetch("list3.txt");
-                if (!response2.ok) throw new Error(HTTP error! status: ${response2.status});
+                if (!response2.ok) throw new Error(`HTTP error! status: ${response2.status}`);
                 const data2 = await response2.text();
                 parseData(data2, ['Series']); // Pass category to parse
 
@@ -164,7 +164,7 @@
 
             for (const [group, items] of Object.entries(groupedData)) {
                 const itemCount = items.length;
-                const itemHTML = 
+                const itemHTML = `
                     <div class="accordion-item">
                         <div class="accordion-title" onclick="toggleAccordion(this)">
                             <span>${group}</span>
@@ -179,17 +179,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${items.map(item => 
+                                    ${items.map(item => `
                                         <tr>
                                             <td>${item.name}</td>
                                             <td><a href="${item.link}" target="_blank">${item.link}</a></td>
                                         </tr>
-                                    ).join('')}
+                                    `).join('')}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                ;
+                `;
                 accordionContainer.insertAdjacentHTML("beforeend", itemHTML);
             }
         }
