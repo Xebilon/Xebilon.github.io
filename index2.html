@@ -177,38 +177,39 @@
             }
         }
 
-        function groupSeries(items) {
-            const seriesMap = {};
+function groupSeries(items) {
+    const seriesMap = {};
 
-            items.forEach(item => {
-                const nameParts = item.name.split(" ");
-                const mainTitle = nameParts.slice(0, nameParts.length - 2).join(" ");
-                const season = nameParts.find(part => part.startsWith("S")) || "Unknown";
-                const episode = nameParts.find(part => part.startsWith("E")) || "Unknown";
+    items.forEach(item => {
+        const nameParts = item.name.split(" ");
+        const mainTitle = nameParts.slice(0, nameParts.length - 2).join(" ");
+        const season = nameParts.find(part => part.startsWith("S")) || "Unknown";
+        const episode = nameParts.find(part => part.startsWith("E")) || "Unknown";
 
-                if (!seriesMap[mainTitle]) {
-                    seriesMap[mainTitle] = {};
-                }
-                if (!seriesMap[mainTitle][season]) {
-                    seriesMap[mainTitle][season] = [];
-                }
-                seriesMap[mainTitle][season].push({ name: episode, link: item.link });
-            });
-
-            let html = "";
-            for (const [title, seasons] of Object.entries(seriesMap)) {
-                html += `<div class="accordion-item"><div class="accordion-title" onclick="toggleAccordion(this)"><span>${title}</span></div><div class="accordion-content">`;
-                for (const [season, episodes] of Object.entries(seasons)) {
-                    html += `<div class="accordion-item"><div class="accordion-title" onclick="toggleAccordion(this)"><span>${season}</span></div><div class="accordion-content">`;
-                    episodes.forEach(ep => {
-                        html += `<div>${ep.name} - <a href="${ep.link}" target="_blank">${ep.link}</a></div>`;
-                    });
-                    html += `</div></div>`;
-                }
-                html += `</div></div>`;
-            }
-            return html;
+        if (!seriesMap[mainTitle]) {
+            seriesMap[mainTitle] = {};
         }
+        if (!seriesMap[mainTitle][season]) {
+            seriesMap[mainTitle][season] = [];
+        }
+        seriesMap[mainTitle][season].push({ name: episode, link: item.link });
+    });
+
+    let html = "";
+    for (const [title, seasons] of Object.entries(seriesMap)) {
+        html += `<div class="accordion-item"><div class="accordion-title" onclick="toggleAccordion(this)"><span>${title}</span></div><div class="accordion-content">`;
+        for (const [season, episodes] of Object.entries(seasons)) {
+            html += `<div class="accordion-item"><div class="accordion-title" onclick="toggleAccordion(this)"><span>${season}</span></div><div class="accordion-content">`;
+            episodes.forEach(ep => {
+                html += `<div>${ep.name} - <a href="${ep.link}" target="_blank">${ep.link}</a></div>`;
+            });
+            html += `</div></div>`;
+        }
+        html += `</div></div>`;
+    }
+    return html;
+}
+
 
         function toggleAccordion(element) {
             const content = element.nextElementSibling;
