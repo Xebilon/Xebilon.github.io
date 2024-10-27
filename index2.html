@@ -99,14 +99,18 @@
         let currentCategory = "Live";
 
         async function loadData() {
+            const files = ["list.txt", "list3.txt"];
             try {
-                const response = await fetch("list.txt");
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.text();
-                parseData(data);
+                const dataPromises = files.map(file => fetch(file).then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.text();
+                }));
+                const dataArray = await Promise.all(dataPromises);
+                
+                dataArray.forEach(data => parseData(data)); // Parse each file's data
                 showTable("Live");  // Load initial view
             } catch (error) {
-                console.error("Error loading file:", error);
+                console.error("Error loading files:", error);
             }
         }
 
