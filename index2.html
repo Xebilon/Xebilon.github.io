@@ -99,22 +99,26 @@
         let currentCategory = "Live";
 
         async function loadData() {
-            const files = ["list.txt", "list3.txt"];
             try {
-                const dataPromises = files.map(file => fetch(file).then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.text();
-                }));
-                const dataArray = await Promise.all(dataPromises);
-                
-                dataArray.forEach(data => parseData(data)); // Parse each file's data
+                // Load Live and Movies from list.txt
+                const response1 = await fetch("list.txt");
+                if (!response1.ok) throw new Error(`HTTP error! status: ${response1.status}`);
+                const data1 = await response1.text();
+                parseData(data1, ['Live', 'Movies']); // Pass categories to parse
+
+                // Load Series from list3.txt
+                const response2 = await fetch("list3.txt");
+                if (!response2.ok) throw new Error(`HTTP error! status: ${response2.status}`);
+                const data2 = await response2.text();
+                parseData(data2, ['Series']); // Pass category to parse
+
                 showTable("Live");  // Load initial view
             } catch (error) {
                 console.error("Error loading files:", error);
             }
         }
 
-        function parseData(data) {
+        function parseData(data, categories) {
             const lines = data.trim().split("\n");
             for (let i = 0; i < lines.length; i += 2) {  // Process pairs of lines
                 const infoLine = lines[i];
@@ -129,12 +133,12 @@
                     link: linkLine || ""
                 };
 
-                // Categorizing entries based on the link
-                if (entry.link.includes("movie")) {
+                // Categorizing entries based on the categories provided
+                if (categories.includes('Movies') && entry.link.includes("movie")) {
                     parsedData.Movies.push(entry);
-                } else if (entry.link.includes("series")) {
+                } else if (categories.includes('Series') && entry.link.includes("series")) {
                     parsedData.Series.push(entry);
-                } else {
+                } else if (categories.includes('Live')) {
                     parsedData.Live.push(entry);
                 }
             }
