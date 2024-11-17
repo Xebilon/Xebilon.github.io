@@ -3,225 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Content Viewer</title>
+    <title>Dynamic URL Modifier</title>
     <style>
+        /* General styling */
         body {
             font-family: Arial, sans-serif;
-            background-color: #2e2e2e;
-            color: white;
+            background-color: #1e1e1e;
+            color: #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0;
-            padding: 0;
+            padding: 20px;
         }
-        h1 {
-            color: #f4f4f9;
-            margin: 20px 0;
-        }
-        nav {
+        #controls {
+            margin-bottom: 20px;
             display: flex;
-            margin: 20px 0;
+            gap: 10px;
         }
-        button {
-            background-color: #007BFF;
-            color: white;
-            padding: 10px 20px;
-            border: none;
+        input {
+            padding: 10px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+        }
+        #accordionContainer {
+            width: 100%;
+        }
+        .accordion-item {
+            background-color: #222;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .accordion-title {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
             cursor: pointer;
-            font-size: 16px;
-            margin: 0 10px;
+            font-weight: bold;
+            background-color: #333;
         }
-        button.active {
-            background-color: #0056b3;
-        }
-        #searchBar {
-            margin: 20px 0;
-            width: 80%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        #inputSection {
-            margin: 20px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #inputSection input {
-            margin: 10px;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .accordion-content {
+            display: none;
+            padding: 15px;
         }
         table {
-            width: 80%;
+            width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
         }
         th, td {
-            border: 1px solid #ddd;
             padding: 10px;
-            text-align: left;
+            border: 1px solid #444;
         }
         th {
-            background-color: #007BFF;
+            background-color: #555;
             color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #444;
-        }
-        .copy-notification {
-            margin-top: 10px;
-            color: green;
-            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <h1>Content Viewer</h1>
-    <nav>
-        <button onclick="showTable('Live')" class="active" id="btnLive">Live</button>
-        <button onclick="showTable('Movies')" id="btnMovies">Movies</button>
-        <button onclick="showTable('Series')" id="btnSeries">Series</button>
-    </nav>
-    <input type="text" id="searchBar" placeholder="Search by name..." oninput="applySearch()">
-    <div id="inputSection">
-        <input type="text" id="inputX" placeholder="Enter XXXX">
-        <input type="text" id="inputY" placeholder="Enter YYYY">
-        <button onclick="applyInputs()">Apply</button>
+    <div id="controls">
+        <input type="text" id="inputX" placeholder="Enter XXXX" oninput="updateUrls()">
+        <input type="text" id="inputY" placeholder="Enter YYYY" oninput="updateUrls()">
     </div>
-    <table id="contentTable">
-        <thead id="tableHeader"></thead>
-        <tbody id="tableBody"></tbody>
-    </table>
-    <div id="notification" class="copy-notification" style="display: none;">URL copied to clipboard!</div>
+    <div id="accordionContainer"></div>
 
     <script>
-        const liveHeaders = ["Group", "Channel", "Action"];
-        const movieHeaders = ["Group", "Name", "Action"];
-        const seriesHeaders = ["Group", "Name", "Action"];
-        let parsedData = [];
-        let filteredData = [];
-        let currentCategory = "Live";
-        let currentX = "";
-        let currentY = "";
+        const parsedData = [];  // All data from the file
+        let currentX = "";  // Dynamic value for XXXX
+        let currentY = "";  // Dynamic value for YYYY
 
-        // Load files and parse after the page loads
-        async function loadFiles() {
+        async function loadData() {
             try {
-                const fileNames = ["list1.txt", "list2.txt", "list3.txt", "list4.txt"];
-                const allData = await Promise.all(fileNames.map(file => fetch(file).then(res => res.text())));
-
-                allData.forEach(fileData => parseData(fileData)); // Parse data after loading files
-                applySearch(); // Initialize the view after parsing
+                const response = await fetch("list.txt");
+                const data = await response.text();
+                parseData(data);
+                populateAccordion(parsedData);
             } catch (error) {
-                console.error("Error loading files:", error);
+                console.error("Error loading file:", error);
             }
         }
 
         function parseData(data) {
-            const lines = data.trim().split('\n');
-            lines.forEach((line, index) => {
-                if (line.startsWith("#EXTINF")) {
-                    const nextLine = lines[index + 1];
-                    if (nextLine && nextLine.startsWith("http")) {
-                        const groupMatch = line.match(/group-title="([^"]+)"/);
-                        const nameMatch = line.match(/tvg-name="([^"]+)"/);
-                        const originalLink = nextLine.trim();
+            const blocks = data.trim().split("\n\n");
+            blocks.forEach(block => {
+                const [info, link] = block.split("\n");
+                const groupMatch = info.match(/group-title="([^"]+)"/);
+                const nameMatch = info.match(/tvg-name="([^"]+)"/);
 
-                        parsedData.push({
-                            group: groupMatch ? groupMatch[1] : "Unknown",
-                            name: nameMatch ? nameMatch[1] : "Unknown",
-                            originalLink: originalLink,
-                            link: originalLink, // Initially set link as original
-                            category: originalLink.includes("movie")
-                                ? "Movies"
-                                : originalLink.includes("series")
-                                ? "Series"
-                                : "Live"
-                        });
-                    }
-                }
+                parsedData.push({
+                    group: groupMatch ? groupMatch[1] : "",
+                    name: nameMatch ? nameMatch[1] : "",
+                    originalLink: link || "",  // Keep original link intact
+                    link: link || ""  // Dynamically updated link
+                });
             });
         }
 
-        // Function to apply inputs (XXXX, YYYY)
-        function applyInputs() {
+        function updateUrls() {
+            // Get the current values of XXXX and YYYY from the input boxes
             currentX = document.getElementById("inputX").value;
             currentY = document.getElementById("inputY").value;
 
-            if (!currentX || !currentY) {
-                alert("Please enter valid values for XXXX and YYYY.");
-                return;
-            }
-
-            // Update the links with the new values for XXXX and YYYY
+            // Update all URLs dynamically
             parsedData.forEach(item => {
-                let updatedLink = item.originalLink;
-
-                // Replace XXXX and YYYY in the URL
-                updatedLink = updatedLink.replace(/\/[0-9]+\/[0-9]+\//, `/${currentX}/${currentY}/`);
-
-                // Update the link in the parsedData array
-                item.link = updatedLink;
+                item.link = item.originalLink.replace(
+                    /http:\/\/line\.premiumpowers\.net\/[^\/]+\/[^\/]+/,
+                    `http://line.premiumpowers.net/${currentX}/${currentY}`
+                );
             });
 
-            applySearch(); // Re-apply the search with updated URLs
+            // Re-render the accordion with updated links
+            populateAccordion(parsedData);
         }
 
-        function applySearch() {
-            const query = document.getElementById("searchBar").value.toLowerCase();
-            filteredData = parsedData.filter(item =>
-                item.name.toLowerCase().includes(query) && item.category === currentCategory
-            );
-            populateTable(filteredData);
+        function populateAccordion(data) {
+            const accordionContainer = document.getElementById("accordionContainer");
+            accordionContainer.innerHTML = "";
+
+            const groupedData = data.reduce((acc, item) => {
+                if (!acc[item.group]) acc[item.group] = [];
+                acc[item.group].push(item);
+                return acc;
+            }, {});
+
+            for (const [group, items] of Object.entries(groupedData)) {
+                const itemCount = items.length;
+                const itemHTML = `
+                    <div class="accordion-item">
+                        <div class="accordion-title" onclick="toggleAccordion(this)">
+                            <span>${group}</span>
+                            <span>(${itemCount})</span>
+                        </div>
+                        <div class="accordion-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>URL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${items.map(item => `
+                                        <tr>
+                                            <td>${item.name}</td>
+                                            <td><a href="${item.link}" target="_blank">${item.link}</a></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                accordionContainer.insertAdjacentHTML("beforeend", itemHTML);
+            }
         }
 
-        function populateTable(data) {
-            const tableHeader = document.getElementById("tableHeader");
-            const tableBody = document.getElementById("tableBody");
-
-            const headers =
-                currentCategory === "Live" ? liveHeaders : currentCategory === "Movies" ? movieHeaders : seriesHeaders;
-
-            tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
-            tableBody.innerHTML = data
-                .map(
-                    item => ` 
-                    <tr>
-                        <td>${item.group}</td>
-                        <td>${item.name}</td>
-                        <td><button onclick="copyToClipboard('${item.link}')">Copy URL</button></td>
-                    </tr>
-                `
-                )
-                .join("");
+        function toggleAccordion(element) {
+            const content = element.nextElementSibling;
+            content.style.display = content.style.display === "block" ? "none" : "block";
         }
 
-        function showTable(category) {
-            currentCategory = category;
-            document.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
-            document.getElementById(`btn${category}`).classList.add("active");
-            applySearch(); // Reapply search whenever the category is changed
-        }
-
-        function copyToClipboard(url) {
-            navigator.clipboard.writeText(url).then(() => {
-                const notification = document.getElementById("notification");
-                notification.textContent = "URL copied to clipboard!";
-                notification.style.display = "block";
-                setTimeout(() => {
-                    notification.style.display = "none";
-                }, 2000);
-            });
-        }
-
-        // Load the files when the page is loaded
-        window.onload = loadFiles;
-
+        loadData();
     </script>
 </body>
 </html>
