@@ -29,6 +29,8 @@
         }
         #accordionContainer {
             width: 100%;
+            max-height: 500px;
+            overflow-y: auto;
         }
         .accordion-item {
             background-color: #222;
@@ -80,6 +82,7 @@
                 const data = await response.text();
                 parseData(data);
                 // After parsing is complete, populate the accordion
+                console.log("Total rows parsed: ", parsedData.length);  // Debugging check
                 populateAccordion(parsedData);
             } catch (error) {
                 console.error("Error loading file:", error);
