@@ -41,12 +41,18 @@
             gap: 10px;
         }
 
-        input {
+        input, button {
             padding: 10px;
             border: 1px solid #555;
             background-color: #333;
             color: #fff;
             border-radius: 5px;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
         }
 
         #accordionContainer {
@@ -94,64 +100,71 @@
         <button onclick="filterCategory('Live')" class="active" id="btnLive">Live</button>
         <button onclick="filterCategory('Movies')" id="btnMovies">Movies</button>
         <button onclick="filterCategory('Series')" id="btnSeries">Series</button>
-        <div id="controls">
-            <input type="text" id="inputX" placeholder="Enter XXXX" oninput="updateUrls()">
-            <input type="text" id="inputY" placeholder="Enter YYYY" oninput="updateUrls()">
-            <input type="text" id="searchBar" placeholder="Search..." oninput="filterSearch()">
-        </div>
     </nav>
+    <div id="controls">
+        <input type="text" id="inputX" placeholder="Enter XXXX">
+        <input type="text" id="inputY" placeholder="Enter YYYY">
+        <button onclick="startParsing()">Apply</button>
+    </div>
+    <div id="loading">
+        <p>Loading... Please wait.</p>
+        <div class="spinner"></div>
+    </div>
     <div id="accordionContainer"></div>
 
     <script>
         const fileList = ["list1.txt", "list2.txt", "list3.txt", "list4.txt"]; // List of files
-        let parsedData = []; // Combined data from all files
-        let filteredData = []; // Data filtered by category or search
-        let currentCategory = "Live"; // Default category
-        let currentX = ""; // Dynamic value for XXXX
-        let currentY = ""; // Dynamic value for YYYY
+        let parsedData = [];
+        let filteredData = [];
+        let currentCategory = "Live";
+        let currentX = "";
+        let currentY = "";
+
+        function startParsing() {
+            currentX = document.getElementById("inputX").value;
+            currentY = document.getElementById("inputY").value;
+
+            if (!currentX || !currentY) {
+                alert("Please enter values for XXXX and YYYY.");
+                return;
+            }
+
+            document.getElementById("loading").style.display = "block"; // Show loading indicator
+            setTimeout(() => {
+                loadAllData();
+            }, 500); // Simulate delay for loading animation
+        }
 
         async function loadAllData() {
             try {
-                parsedData = []; // Reset data before loading
+                parsedData = []; // Reset parsed data
                 for (const file of fileList) {
                     const response = await fetch(file);
                     const data = await response.text();
                     parseData(data);
                 }
-                filterCategory("Live"); // Default to showing Live
+                filterCategory("Live"); // Default category
+                document.getElementById("loading").style.display = "none"; // Hide loading indicator
             } catch (error) {
                 console.error("Error loading files:", error);
+                document.getElementById("loading").style.display = "none"; // Hide loading indicator
             }
         }
 
         function parseData(data) {
-            const lines = data.trim().split("\n"); // Split by lines
-            lines.forEach(line => {
-                const [info, link] = line.split("\n");
+            const blocks = data.trim().split('\n\n'); // Split into blocks
+            blocks.forEach(block => {
+                const [info, link] = block.split('\n');
                 const groupMatch = info.match(/group-title="([^"]+)"/);
                 const nameMatch = info.match(/tvg-name="([^"]+)"/);
 
                 parsedData.push({
                     group: groupMatch ? groupMatch[1] : "",
                     name: nameMatch ? nameMatch[1] : "",
-                    originalLink: link || "", // Keep original link intact
-                    link: link || "" // Dynamically updated link
+                    originalLink: link || "",
+                    link: link ? link.replace(/http:\/\/line\.premiumpowers\.net\/[^\/]+\/[^\/]+/, `http://line.premiumpowers.net/${currentX}/${currentY}`) : ""
                 });
             });
-        }
-
-        function updateUrls() {
-            currentX = document.getElementById("inputX").value;
-            currentY = document.getElementById("inputY").value;
-
-            parsedData.forEach(item => {
-                item.link = item.originalLink.replace(
-                    /http:\/\/line\.premiumpowers\.net\/[^\/]+\/[^\/]+/,
-                    `http://line.premiumpowers.net/${currentX}/${currentY}`
-                );
-            });
-
-            populateAccordion(filteredData);
         }
 
         function filterCategory(category) {
@@ -165,12 +178,6 @@
             populateAccordion(filteredData);
             document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
             document.getElementById(`btn${category}`).classList.add("active");
-        }
-
-        function filterSearch() {
-            const searchQuery = document.getElementById("searchBar").value.toLowerCase();
-            const searchResults = filteredData.filter(item => item.name.toLowerCase().includes(searchQuery));
-            populateAccordion(searchResults);
         }
 
         function populateAccordion(data) {
@@ -219,8 +226,6 @@
             const content = element.nextElementSibling;
             content.style.display = content.style.display === "block" ? "none" : "block";
         }
-
-        loadAllData(); // Load all files on page load
     </script>
 </body>
 </html>
