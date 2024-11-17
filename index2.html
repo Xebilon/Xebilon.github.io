@@ -151,21 +151,21 @@
             }
         }
 
-        function parseData(data) {
-            const blocks = data.trim().split('\n\n'); // Split into blocks
-            blocks.forEach(block => {
-                const [info, link] = block.split('\n');
-                const groupMatch = info.match(/group-title="([^"]+)"/);
-                const nameMatch = info.match(/tvg-name="([^"]+)"/);
+       function parseData(data) {
+    const blocks = data.trim().split('\n\n'); // Split into blocks
+    blocks.forEach(block => {
+        const [info, link] = block.split('\n');
+        const groupMatch = info.match(/group-title="([^"]+)"/);
+        const nameMatch = info.match(/tvg-name="([^"]+)"/);
 
-                parsedData.push({
-                    group: groupMatch ? groupMatch[1] : "",
-                    name: nameMatch ? nameMatch[1] : "",
-                    originalLink: link || "",
-                    link: link ? link.replace(/http:\/\/line\.premiumpowers\.net\/[^\/]+\/[^\/]+/, `http://line.premiumpowers.net/${currentX}/${currentY}`) : ""
-                });
-            });
-        }
+        parsedData.push({
+            group: groupMatch ? groupMatch[1] : "",
+            name: nameMatch ? nameMatch[1] : "",
+            originalLink: link || "",
+            link: link ? link.replace(/http:\/\/[^\/]+\/[^\/]+\/[^\/]+/, `http://84140-agree.oot-mx.me:80/${currentX}/${currentY}`) : ""
+        });
+    });
+}
 
         function filterCategory(category) {
             currentCategory = category;
