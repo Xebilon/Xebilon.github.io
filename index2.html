@@ -6,62 +6,78 @@
     <title>Content Viewer</title>
     <style>
         body {
-    font-family: Arial, sans-serif;
-    background-color: #121212; /* Dark background */
-    color: white; /* Light text */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-}
-
-h1 {
-    color: #f1f1f1;
-    margin: 20px 0;
-}
-
-nav button {
-    background-color: #333; /* Dark buttons */
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    margin: 0 10px;
-}
-
-button.active {
-    background-color: #007BFF; /* Highlight active button */
-}
-
-#searchBar, #inputSection input {
-    background-color: #333; /* Dark background for inputs */
-    color: white;
-    border: 1px solid #555; /* Subtle border */
-}
-
-table {
-    width: 80%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    color: white; /* Table text */
-}
-
-th, td {
-    border: 1px solid #444;
-    padding: 10px;
-    text-align: left;
-}
-
-th {
-    background-color: #555; /* Darker header background */
-}
-
-tr:nth-child(even) {
-    background-color: #333; /* Darker rows */
-}
-
+            font-family: Arial, sans-serif;
+            background-color: #2e2e2e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #f4f4f9;
+            margin: 20px 0;
+        }
+        nav {
+            display: flex;
+            margin: 20px 0;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        button.active {
+            background-color: #0056b3;
+        }
+        #searchBar {
+            margin: 20px 0;
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #inputSection {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #inputSection input {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #444;
+        }
+        .copy-notification {
+            margin-top: 10px;
+            color: green;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -95,10 +111,11 @@ tr:nth-child(even) {
 
         async function loadAllFiles() {
             try {
+                // Only load the files when "Apply" is clicked
                 const fileNames = ["list1.txt", "list2.txt", "list3.txt", "list4.txt"];
                 const allData = await Promise.all(fileNames.map(file => fetch(file).then(res => res.text())));
 
-                allData.forEach(fileData => parseData(fileData));
+                allData.forEach(fileData => parseData(fileData)); // Parse data after loading files
                 applySearch(); // Initialize the view after parsing
             } catch (error) {
                 console.error("Error loading files:", error);
@@ -106,78 +123,72 @@ tr:nth-child(even) {
         }
 
         function parseData(data) {
-    const lines = data.trim().split('\n');
-    lines.forEach((line, index) => {
-        if (line.startsWith("#EXTINF")) {
-            const nextLine = lines[index + 1];
-            if (nextLine && nextLine.startsWith("http")) {
-                const groupMatch = line.match(/group-title="([^"]+)"/);
-                const nameMatch = line.match(/tvg-name="([^"]+)"/);
-                const originalLink = nextLine.trim();
+            const lines = data.trim().split('\n');
+            lines.forEach((line, index) => {
+                if (line.startsWith("#EXTINF")) {
+                    const nextLine = lines[index + 1];
+                    if (nextLine && nextLine.startsWith("http")) {
+                        const groupMatch = line.match(/group-title="([^"]+)"/);
+                        const nameMatch = line.match(/tvg-name="([^"]+)"/);
+                        const originalLink = nextLine.trim();
 
-                // Detect the category based on the URL
-                let category = "Live"; // Default to Live
-                if (originalLink.includes("movie")) {
-                    category = "Movies";
-                } else if (originalLink.includes("series")) {
-                    category = "Series";
+                        parsedData.push({
+                            group: groupMatch ? groupMatch[1] : "Unknown",
+                            name: nameMatch ? nameMatch[1] : "Unknown",
+                            originalLink: originalLink,
+                            link: originalLink, // Initially set link as original
+                            category: originalLink.includes("movie")
+                                ? "Movies"
+                                : originalLink.includes("series")
+                                ? "Series"
+                                : "Live"
+                        });
+                    }
                 }
-
-                // Push the entry to parsedData, without modifying the original URL
-                parsedData.push({
-                    group: groupMatch ? groupMatch[1] : "Unknown",
-                    name: nameMatch ? nameMatch[1] : "Unknown",
-                    originalLink: originalLink,
-                    link: originalLink, // Keep the original link intact at first
-                    category: category // Set the correct category based on URL
-                });
-            }
+            });
         }
-    });
-}
 
         function applyInputs() {
-    currentX = document.getElementById("inputX").value;
-    currentY = document.getElementById("inputY").value;
+            currentX = document.getElementById("inputX").value;
+            currentY = document.getElementById("inputY").value;
 
-    if (!currentX || !currentY) {
-        alert("Please enter valid values for XXXX and YYYY.");
-        return;
-    }
-
-    showLoading();
-    setTimeout(() => {
-        parsedData.forEach(item => {
-            let updatedLink;
-
-            if (item.originalLink.includes("movie") || item.originalLink.includes("series")) {
-                // Update URLs with 'movie' or 'series' to replace XXXX and YYYY only
-                updatedLink = item.originalLink.replace(
-                    /\/[0-9]+\/[0-9]+\//,  // Match /XXXX/YYYY/ pattern
-                    `/${currentX}/${currentY}/`  // Replace with currentX and currentY values
-                );
-            } else {
-                // For other URLs, replace all XXXX/YYYY portions
-                updatedLink = item.originalLink.replace(
-                    /\/[0-9]+\/[0-9]+\//, // Match /XXXX/YYYY/ pattern
-                    `/${currentX}/${currentY}/`  // Replace with currentX and currentY values
-                );
+            if (!currentX || !currentY) {
+                alert("Please enter valid values for XXXX and YYYY.");
+                return;
             }
 
-            // Update the link in the parsedData array
-            item.link = updatedLink;
-        });
-        applySearch(); // Re-apply the search with the updated links
-        hideLoading();
-    }, 1000); // Simulate loading time
-}
+            showLoading(); // Show loading indication while processing
 
-        function applySearch() {
-            const query = document.getElementById("searchBar").value.toLowerCase();
-            filteredData = parsedData.filter(item =>
-                item.name.toLowerCase().includes(query) && item.category === currentCategory
-            );
-            populateTable(filteredData);
+            // Load the files after "Apply" button is clicked
+            loadAllFiles().then(() => {
+                setTimeout(() => {
+                    parsedData.forEach(item => {
+                        let updatedLink;
+
+                        // Update URLs that have 'movie' or 'series'
+                        if (item.originalLink.includes("movie") || item.originalLink.includes("series")) {
+                            updatedLink = item.originalLink.replace(
+                                /\/[0-9]+\/[0-9]+\//,  // Match /XXXX/YYYY/ pattern
+                                `/${currentX}/${currentY}/`  // Replace with currentX and currentY values
+                            );
+                        } else {
+                            // Update other URLs with the same approach
+                            updatedLink = item.originalLink.replace(
+                                /\/[0-9]+\/[0-9]+\//,  // Match /XXXX/YYYY/ pattern
+                                `/${currentX}/${currentY}/`  // Replace with currentX and currentY values
+                            );
+                        }
+
+                        // Update the link in the parsedData array
+                        item.link = updatedLink;
+                    });
+
+                    applySearch(); // Re-apply the search with the updated links
+                    hideLoading(); // Hide loading indication
+                }, 1000); // Simulate a short delay to show loading
+            }).catch(error => {
+                console.error("Error loading files:", error);
+            });
         }
 
         function showLoading() {
@@ -187,6 +198,14 @@ tr:nth-child(even) {
 
         function hideLoading() {
             document.getElementById("notification").style.display = "none";
+        }
+
+        function applySearch() {
+            const query = document.getElementById("searchBar").value.toLowerCase();
+            filteredData = parsedData.filter(item =>
+                item.name.toLowerCase().includes(query) && item.category === currentCategory
+            );
+            populateTable(filteredData);
         }
 
         function populateTable(data) {
@@ -199,7 +218,7 @@ tr:nth-child(even) {
             tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
             tableBody.innerHTML = data
                 .map(
-                    item => `
+                    item => ` 
                     <tr>
                         <td>${item.group}</td>
                         <td>${item.name}</td>
@@ -227,8 +246,6 @@ tr:nth-child(even) {
                 }, 2000);
             });
         }
-
-        loadAllFiles();
     </script>
 </body>
 </html>
