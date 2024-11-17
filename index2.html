@@ -165,16 +165,16 @@
                     parsedData.forEach(item => {
                         let updatedLink;
 
-                        // Update URLs that have 'movie' or 'series'
+                        // Check if the URL contains 'movie' or 'series' and update accordingly
                         if (item.originalLink.includes("movie") || item.originalLink.includes("series")) {
                             updatedLink = item.originalLink.replace(
-                                /\/[0-9]+\/[0-9]+\//,  // Match /XXXX/YYYY/ pattern
-                                `/${currentX}/${currentY}/`  // Replace with currentX and currentY values
+                                /\/[a-zA-Z]+\/[0-9]+\/[0-9]+\//,  // Match /movie/XXXX/YYYY/ or /series/XXXX/YYYY/
+                                `/${item.originalLink.split('/')[3]}/${currentX}/${currentY}/`  // Replace with movie or series + currentX/currentY
                             );
                         } else {
-                            // Update other URLs with the same approach
+                            // For other URLs, replace the XXXX/YYYY part
                             updatedLink = item.originalLink.replace(
-                                /\/[0-9]+\/[0-9]+\//,  // Match /XXXX/YYYY/ pattern
+                                /\/[0-9]+\/[0-9]+\//,  // Match /XXXX/YYYY/
                                 `/${currentX}/${currentY}/`  // Replace with currentX and currentY values
                             );
                         }
@@ -246,6 +246,7 @@
                 }, 2000);
             });
         }
+
     </script>
 </body>
 </html>
