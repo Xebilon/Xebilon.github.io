@@ -163,22 +163,10 @@
             loadFiles().then(() => {
                 setTimeout(() => {
                     parsedData.forEach(item => {
-                        let updatedLink;
+                        let updatedLink = item.originalLink;
 
-                        // Check if the URL contains 'movie' or 'series' and update accordingly
-                        if (item.originalLink.includes("movie") || item.originalLink.includes("series")) {
-                            // Replace only the XXXX and YYYY part of the URL
-                            updatedLink = item.originalLink.replace(
-                                /(\/movie\/|\/series\/)[0-9]+\/[0-9]+\//,  // Match /movie/XXXX/YYYY/ or /series/XXXX/YYYY/
-                                `/${item.originalLink.split('/')[3]}/${currentX}/${currentY}/`  // Replace with movie or series + currentX/currentY
-                            );
-                        } else {
-                            // For other URLs, replace the XXXX/YYYY part
-                            updatedLink = item.originalLink.replace(
-                                /\/[0-9]+\/[0-9]+\//,  // Match /XXXX/YYYY/
-                                `/${currentX}/${currentY}/`  // Replace with currentX and currentY values
-                            );
-                        }
+                        // Replace XXXX and YYYY in the URL
+                        updatedLink = updatedLink.replace(/\/[0-9]+\/[0-9]+\//, `/${currentX}/${currentY}/`);
 
                         // Update the link in the parsedData array
                         item.link = updatedLink;
