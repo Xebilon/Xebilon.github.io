@@ -3,23 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic URL Modifier</title>
+    <title>Content Viewer</title>
     <style>
-        /* General styling */
+        /* General page styles */
         body {
             font-family: Arial, sans-serif;
             background-color: #1e1e1e;
             color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
         }
+
+        nav {
+            background-color: #333;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav button {
+            background-color: #444;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        nav button.active {
+            background-color: #007BFF;
+        }
+
         #controls {
-            margin-bottom: 20px;
+            margin: 20px;
             display: flex;
             gap: 10px;
         }
+
         input {
             padding: 10px;
             border: 1px solid #555;
@@ -27,14 +49,17 @@
             color: #fff;
             border-radius: 5px;
         }
+
         #accordionContainer {
-            width: 100%;
+            padding: 20px;
         }
+
         .accordion-item {
             background-color: #222;
             margin-bottom: 10px;
             border-radius: 5px;
         }
+
         .accordion-title {
             display: flex;
             justify-content: space-between;
@@ -43,18 +68,22 @@
             font-weight: bold;
             background-color: #333;
         }
+
         .accordion-content {
             display: none;
             padding: 15px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         th, td {
             padding: 10px;
             border: 1px solid #444;
         }
+
         th {
             background-color: #555;
             color: white;
@@ -62,15 +91,23 @@
     </style>
 </head>
 <body>
-    <div id="controls">
-        <input type="text" id="inputX" placeholder="Enter XXXX" oninput="updateUrls()">
-        <input type="text" id="inputY" placeholder="Enter YYYY" oninput="updateUrls()">
-    </div>
+    <nav>
+        <button onclick="filterCategory('Live')" class="active" id="btnLive">Live</button>
+        <button onclick="filterCategory('Movies')" id="btnMovies">Movies</button>
+        <button onclick="filterCategory('Series')" id="btnSeries">Series</button>
+        <div id="controls">
+            <input type="text" id="inputX" placeholder="Enter XXXX" oninput="updateUrls()">
+            <input type="text" id="inputY" placeholder="Enter YYYY" oninput="updateUrls()">
+            <input type="text" id="searchBar" placeholder="Search..." oninput="filterSearch()">
+        </div>
+    </nav>
     <div id="accordionContainer"></div>
 
     <script>
         const fileList = ["list1.txt", "list2.txt", "list3.txt", "list4.txt"];  // List of files
-        const parsedData = [];  // Combined data from all files
+        let parsedData = [];  // Combined data from all files
+        let filteredData = []; // Data filtered by category or search
+        let currentCategory = "Live";  // Default category
         let currentX = "";  // Dynamic value for XXXX
         let currentY = "";  // Dynamic value for YYYY
 
@@ -81,7 +118,7 @@
                     const data = await response.text();
                     parseData(data);
                 }
-                populateAccordion(parsedData);
+                filterCategory("Live");  // Default to showing Live
             } catch (error) {
                 console.error("Error loading files:", error);
             }
@@ -104,11 +141,9 @@
         }
 
         function updateUrls() {
-            // Get the current values of XXXX and YYYY from the input boxes
             currentX = document.getElementById("inputX").value;
             currentY = document.getElementById("inputY").value;
 
-            // Update all URLs dynamically
             parsedData.forEach(item => {
                 item.link = item.originalLink.replace(
                     /http:\/\/line\.premiumpowers\.net\/[^\/]+\/[^\/]+/,
@@ -116,8 +151,26 @@
                 );
             });
 
-            // Re-render the accordion with updated links
-            populateAccordion(parsedData);
+            populateAccordion(filteredData);
+        }
+
+        function filterCategory(category) {
+            currentCategory = category;
+            filteredData = parsedData.filter(item => {
+                if (category === "Live") return !item.link.includes("movie") && !item.link.includes("series");
+                if (category === "Movies") return item.link.includes("movie");
+                if (category === "Series") return item.link.includes("series");
+            });
+
+            populateAccordion(filteredData);
+            document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+            document.getElementById(`btn${category}`).classList.add("active");
+        }
+
+        function filterSearch() {
+            const searchQuery = document.getElementById("searchBar").value.toLowerCase();
+            const searchResults = filteredData.filter(item => item.name.toLowerCase().includes(searchQuery));
+            populateAccordion(searchResults);
         }
 
         function populateAccordion(data) {
