@@ -109,9 +109,9 @@
         let currentX = "";
         let currentY = "";
 
-        async function loadAllFiles() {
+        // Load files and parse after "Apply" button is clicked
+        async function loadFiles() {
             try {
-                // Only load the files when "Apply" is clicked
                 const fileNames = ["list1.txt", "list2.txt", "list3.txt", "list4.txt"];
                 const allData = await Promise.all(fileNames.map(file => fetch(file).then(res => res.text())));
 
@@ -160,15 +160,16 @@
             showLoading(); // Show loading indication while processing
 
             // Load the files after "Apply" button is clicked
-            loadAllFiles().then(() => {
+            loadFiles().then(() => {
                 setTimeout(() => {
                     parsedData.forEach(item => {
                         let updatedLink;
 
                         // Check if the URL contains 'movie' or 'series' and update accordingly
                         if (item.originalLink.includes("movie") || item.originalLink.includes("series")) {
+                            // Replace only the XXXX and YYYY part of the URL
                             updatedLink = item.originalLink.replace(
-                                /\/[a-zA-Z]+\/[0-9]+\/[0-9]+\//,  // Match /movie/XXXX/YYYY/ or /series/XXXX/YYYY/
+                                /(\/movie\/|\/series\/)[0-9]+\/[0-9]+\//,  // Match /movie/XXXX/YYYY/ or /series/XXXX/YYYY/
                                 `/${item.originalLink.split('/')[3]}/${currentX}/${currentY}/`  // Replace with movie or series + currentX/currentY
                             );
                         } else {
