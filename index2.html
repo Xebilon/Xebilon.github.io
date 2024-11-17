@@ -157,36 +157,18 @@
                 return;
             }
 
-            showLoading(); // Show loading indication while processing
+            // Update the links for all items with the entered XXXX and YYYY
+            parsedData.forEach(item => {
+                let updatedLink = item.originalLink;
 
-            // Load the files after "Apply" button is clicked
-            loadFiles().then(() => {
-                setTimeout(() => {
-                    parsedData.forEach(item => {
-                        let updatedLink = item.originalLink;
+                // Replace XXXX and YYYY in the URL
+                updatedLink = updatedLink.replace(/\/[0-9]+\/[0-9]+\//, `/${currentX}/${currentY}/`);
 
-                        // Replace XXXX and YYYY in the URL
-                        updatedLink = updatedLink.replace(/\/[0-9]+\/[0-9]+\//, `/${currentX}/${currentY}/`);
-
-                        // Update the link in the parsedData array
-                        item.link = updatedLink;
-                    });
-
-                    applySearch(); // Re-apply the search with the updated links
-                    hideLoading(); // Hide loading indication
-                }, 1000); // Simulate a short delay to show loading
-            }).catch(error => {
-                console.error("Error loading files:", error);
+                // Update the link in the parsedData array
+                item.link = updatedLink;
             });
-        }
 
-        function showLoading() {
-            document.getElementById("notification").textContent = "Loading...";
-            document.getElementById("notification").style.display = "block";
-        }
-
-        function hideLoading() {
-            document.getElementById("notification").style.display = "none";
+            applySearch(); // Re-apply the search with the updated links
         }
 
         function applySearch() {
@@ -197,27 +179,26 @@
             populateTable(filteredData);
         }
 
-     function populateTable(data) {
-    const tableHeader = document.getElementById("tableHeader");
-    const tableBody = document.getElementById("tableBody");
+        function populateTable(data) {
+            const tableHeader = document.getElementById("tableHeader");
+            const tableBody = document.getElementById("tableBody");
 
-    const headers =
-        currentCategory === "Live" ? liveHeaders : currentCategory === "Movies" ? movieHeaders : seriesHeaders;
+            const headers =
+                currentCategory === "Live" ? liveHeaders : currentCategory === "Movies" ? movieHeaders : seriesHeaders;
 
-    tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
-    tableBody.innerHTML = data
-        .map(
-            item => ` 
-            <tr>
-                <td>${item.group}</td>
-                <td>${item.name}</td>
-                <td><button onclick="copyToClipboard('${item.link}')">Copy URL</button></td>
-            </tr>
-        `
-        )
-        .join("");
-}
-
+            tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
+            tableBody.innerHTML = data
+                .map(
+                    item => ` 
+                    <tr>
+                        <td>${item.group}</td>
+                        <td>${item.name}</td>
+                        <td><button onclick="copyToClipboard('${item.link}')">Copy URL</button></td>
+                    </tr>
+                `
+                )
+                .join("");
+        }
 
         function showTable(category) {
             currentCategory = category;
@@ -236,7 +217,6 @@
                 }, 2000);
             });
         }
-
     </script>
 </body>
 </html>
