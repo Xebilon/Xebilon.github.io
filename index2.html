@@ -107,10 +107,25 @@
 
             // Update all URLs dynamically
             parsedData.forEach(item => {
-                item.link = item.originalLink.replace(
-                    /http:\/\/line\.premiumpowers\.net\/[^\/]+\/[^\/]+/,
-                    `http://line.premiumpowers.net/${currentX}/${currentY}`
-                );
+                // Check the type of link and update accordingly
+                if (item.originalLink.includes("/movie/")) {
+                    item.group = "Movies";  // Update category if it's a movie
+                    item.link = item.originalLink.replace(
+                        /http:\/\/35502-get\.oot-mx\.me:80\/[^\/]+\/[^\/]+/,
+                        `http://35502-get.oot-mx.me:80/movie/${currentX}/${currentY}`
+                    );
+                } else if (item.originalLink.includes("/series/")) {
+                    item.group = "Series";  // Update category if it's a series
+                    item.link = item.originalLink.replace(
+                        /http:\/\/35502-get\.oot-mx\.me:80\/[^\/]+\/[^\/]+/,
+                        `http://35502-get.oot-mx.me:80/series/${currentX}/${currentY}`
+                    );
+                } else {
+                    item.link = item.originalLink.replace(
+                        /http:\/\/35502-get\.oot-mx\.me:80\/[^\/]+\/[^\/]+/,
+                        `http://35502-get.oot-mx.me:80/${currentX}/${currentY}`
+                    );
+                }
             });
 
             // Re-render the accordion with updated links
