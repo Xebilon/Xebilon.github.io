@@ -74,7 +74,6 @@
         const parsedData = [];  // All data from the file
         let currentX = "";  // Dynamic value for XXXX
         let currentY = "";  // Dynamic value for YYYY
-        let totalRows = 0;
 
         async function loadData() {
             try {
@@ -90,20 +89,29 @@
         }
 
         function parseData(data) {
-            const blocks = data.trim().split("\n\n");
-            totalRows = blocks.length;
-            blocks.forEach(block => {
-                const [info, link] = block.split("\n");
-                const groupMatch = info.match(/group-title="([^"]+)"/);
-                const nameMatch = info.match(/tvg-name="([^"]+)"/);
+            const lines = data.trim().split("\n");
+            let currentInfo = "";
 
-                parsedData.push({
-                    group: groupMatch ? groupMatch[1] : "",
-                    name: nameMatch ? nameMatch[1] : "",
-                    originalLink: link || "",  // Keep original link intact
-                    link: link || ""  // Dynamically updated link
-                });
-            });
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                // Check if the line is metadata (starts with #EXTINF)
+                if (line.startsWith("#EXTINF")) {
+                    currentInfo = line;
+                }
+                // If the line is a URL (it doesn't start with #EXTINF)
+                else if (line) {
+                    const groupMatch = currentInfo.match(/group-title="([^"]+)"/);
+                    const nameMatch = currentInfo.match(/tvg-name="([^"]+)"/);
+
+                    parsedData.push({
+                        group: groupMatch ? groupMatch[1] : "",
+                        name: nameMatch ? nameMatch[1] : "",
+                        originalLink: line,  // URL line
+                        link: line  // Will be dynamically updated later
+                    });
+                }
+            }
         }
 
         function updateUrls() {
@@ -113,7 +121,6 @@
 
             // Update all URLs dynamically
             parsedData.forEach(item => {
-                // Check the type of link and update accordingly
                 if (item.originalLink.includes("/movie/")) {
                     item.group = "Movies";  // Update category if it's a movie
                     item.link = item.originalLink.replace(
@@ -134,7 +141,7 @@
                 }
             });
 
-            // Re-render the accordion with updated links in batches
+            // Re-render the accordion with updated links
             populateAccordion(parsedData);
         }
 
