@@ -80,7 +80,6 @@
                 const response = await fetch("list.txt");
                 const data = await response.text();
                 parseData(data);
-                // After parsing is complete, populate the accordion
                 console.log("Total rows parsed: ", parsedData.length);  // Debugging check
                 populateAccordion(parsedData);
             } catch (error) {
@@ -124,16 +123,17 @@
                 if (item.originalLink.includes("/movie/")) {
                     item.group = "Movies";  // Update category if it's a movie
                     item.link = item.originalLink.replace(
-                        /http:\/\/35502-get\.oot-mx\.me:80\/[^\/]+\/[^\/]+/,
+                        /http:\/\/35502-get\.oot-mx\.me:80\/movie\/[^\/]+\/[^\/]+/,
                         `http://35502-get.oot-mx.me:80/movie/${currentX}/${currentY}`
                     );
                 } else if (item.originalLink.includes("/series/")) {
                     item.group = "Series";  // Update category if it's a series
                     item.link = item.originalLink.replace(
-                        /http:\/\/35502-get\.oot-mx\.me:80\/[^\/]+\/[^\/]+/,
+                        /http:\/\/35502-get\.oot-mx\.me:80\/series\/[^\/]+\/[^\/]+/,
                         `http://35502-get.oot-mx.me:80/series/${currentX}/${currentY}`
                     );
                 } else {
+                    // For other types of URL (like general links)
                     item.link = item.originalLink.replace(
                         /http:\/\/35502-get\.oot-mx\.me:80\/[^\/]+\/[^\/]+/,
                         `http://35502-get.oot-mx.me:80/${currentX}/${currentY}`
