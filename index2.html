@@ -7,242 +7,225 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #1e1e1e;
-            color: #ffffff;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin: 0;
             padding: 0;
         }
-
-        nav {
-            background-color: #333;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        h1 {
+            color: #333;
+            margin: 20px 0;
         }
-
-        nav button {
-            background-color: #444;
-            color: #fff;
-            padding: 10px 15px;
+        nav {
+            display: flex;
+            margin: 20px 0;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
-            margin-right: 10px;
+            font-size: 16px;
+            margin: 0 10px;
         }
-
-        nav button.active {
-            background-color: #007BFF;
+        button.active {
+            background-color: #0056b3;
         }
-
-        #controls {
-            margin: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        input, button {
+        #searchBar {
+            margin: 20px 0;
+            width: 80%;
             padding: 10px;
-            border: 1px solid #555;
-            background-color: #333;
-            color: #fff;
-            border-radius: 5px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-
-        #loading {
-            display: none;
-            text-align: center;
+        #inputSection {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #inputSection input {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        table {
+            width: 80%;
+            border-collapse: collapse;
             margin-top: 20px;
         }
-
-        #accordionContainer {
-            padding: 20px;
-        }
-
-        .accordion-item {
-            background-color: #222;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-
-        .accordion-title {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            background-color: #333;
-        }
-
-        .accordion-content {
-            display: none;
-            padding: 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
         th, td {
+            border: 1px solid #ddd;
             padding: 10px;
-            border: 1px solid #444;
+            text-align: left;
         }
-
         th {
-            background-color: #555;
+            background-color: #007BFF;
             color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .copy-notification {
+            margin-top: 10px;
+            color: green;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
+    <h1>Content Viewer</h1>
     <nav>
-        <button onclick="filterCategory('Live')" class="active" id="btnLive">Live</button>
-        <button onclick="filterCategory('Movies')" id="btnMovies">Movies</button>
-        <button onclick="filterCategory('Series')" id="btnSeries">Series</button>
+        <button onclick="showTable('Live')" class="active" id="btnLive">Live</button>
+        <button onclick="showTable('Movies')" id="btnMovies">Movies</button>
+        <button onclick="showTable('Series')" id="btnSeries">Series</button>
     </nav>
-    <div id="controls">
+    <input type="text" id="searchBar" placeholder="Search by name..." oninput="applySearch()">
+    <div id="inputSection">
         <input type="text" id="inputX" placeholder="Enter XXXX">
         <input type="text" id="inputY" placeholder="Enter YYYY">
-        <button onclick="startParsing()">Apply</button>
+        <button onclick="applyInputs()">Apply</button>
     </div>
-    <div id="loading">
-        <p>Loading... Please wait.</p>
-        <div class="spinner"></div>
-    </div>
-    <div id="accordionContainer"></div>
+    <table id="contentTable">
+        <thead id="tableHeader"></thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+    <div id="notification" class="copy-notification" style="display: none;">URL copied to clipboard!</div>
 
     <script>
-        const fileList = ["list1.txt", "list2.txt", "list3.txt", "list4.txt"]; // List of files
+        const liveHeaders = ["Group", "Channel", "Action"];
+        const movieHeaders = ["Group", "Name", "Action"];
+        const seriesHeaders = ["Group", "Name", "Action"];
         let parsedData = [];
         let filteredData = [];
         let currentCategory = "Live";
         let currentX = "";
         let currentY = "";
 
-        function startParsing() {
-            currentX = document.getElementById("inputX").value;
-            currentY = document.getElementById("inputY").value;
-
-            if (!currentX || !currentY) {
-                alert("Please enter values for XXXX and YYYY.");
-                return;
-            }
-
-            document.getElementById("loading").style.display = "block"; // Show loading indicator
-            setTimeout(() => {
-                loadAllData();
-            }, 500); // Simulate delay for loading animation
-        }
-
-        async function loadAllData() {
+        async function loadAllFiles() {
             try {
-                parsedData = []; // Reset parsed data
-                for (const file of fileList) {
-                    const response = await fetch(file);
-                    const data = await response.text();
-                    parseData(data);
-                }
-                filterCategory("Live"); // Default category
-                document.getElementById("loading").style.display = "none"; // Hide loading indicator
+                const fileNames = ["list1.txt", "list2.txt", "list3.txt", "list4.txt"];
+                const allData = await Promise.all(fileNames.map(file => fetch(file).then(res => res.text())));
+
+                allData.forEach(fileData => parseData(fileData));
+                applySearch(); // Initialize the view after parsing
             } catch (error) {
                 console.error("Error loading files:", error);
-                document.getElementById("loading").style.display = "none"; // Hide loading indicator
             }
         }
 
-       function parseData(data) {
-    const lines = data.trim().split('\n'); // Split into lines
-    lines.forEach((line, index) => {
-        if (line.startsWith("#EXTINF")) {
-            const nextLine = lines[index + 1]; // Get the next line for the URL
-            if (nextLine && nextLine.startsWith("http")) {
-                const groupMatch = line.match(/group-title="([^"]+)"/);
-                const nameMatch = line.match(/tvg-name="([^"]+)"/);
+        function parseData(data) {
+            const lines = data.trim().split('\n');
+            lines.forEach((line, index) => {
+                if (line.startsWith("#EXTINF")) {
+                    const nextLine = lines[index + 1];
+                    if (nextLine && nextLine.startsWith("http")) {
+                        const groupMatch = line.match(/group-title="([^"]+)"/);
+                        const nameMatch = line.match(/tvg-name="([^"]+)"/);
+                        const originalLink = nextLine.trim();
 
-                const originalLink = nextLine.trim();
-                const updatedLink = originalLink.replace(
-                    /http:\/\/[^\/]+\/[^\/]+\/[^\/]+/,
-                    `http://84140-agree.oot-mx.me:80/${currentX}/${currentY}`
-                );
-
-                // Add to parsedData with category determined by URL
-                parsedData.push({
-                    group: groupMatch ? groupMatch[1] : "Unknown",
-                    name: nameMatch ? nameMatch[1] : "Unknown",
-                    originalLink: originalLink,
-                    link: updatedLink,
-                    category: originalLink.includes("movie")
-                        ? "Movies"
-                        : originalLink.includes("series")
-                        ? "Series"
-                        : "Live"
-                });
-            }
-        }
-    });
-}
-
-
-        function filterCategory(category) {
-            currentCategory = category;
-            filteredData = parsedData.filter(item => {
-                if (category === "Live") return !item.link.includes("movie") && !item.link.includes("series");
-                if (category === "Movies") return item.link.includes("movie");
-                if (category === "Series") return item.link.includes("series");
+                        parsedData.push({
+                            group: groupMatch ? groupMatch[1] : "Unknown",
+                            name: nameMatch ? nameMatch[1] : "Unknown",
+                            originalLink: originalLink,
+                            link: originalLink.replace(
+                                /http:\/\/[^\/]+\/[^\/]+\/[^\/]+/,
+                                `http://84140-agree.oot-mx.me:80/${currentX}/${currentY}`
+                            ),
+                            category: originalLink.includes("movie")
+                                ? "Movies"
+                                : originalLink.includes("series")
+                                ? "Series"
+                                : "Live"
+                        });
+                    }
+                }
             });
-
-            populateAccordion(filteredData);
-            document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
-            document.getElementById(`btn${category}`).classList.add("active");
         }
 
-        function populateAccordion(data) {
-            const accordionContainer = document.getElementById("accordionContainer");
-            accordionContainer.innerHTML = "";
-
-            const groupedData = data.reduce((acc, item) => {
-                if (!acc[item.group]) acc[item.group] = [];
-                acc[item.group].push(item);
-                return acc;
-            }, {});
-
-            for (const [group, items] of Object.entries(groupedData)) {
-                const itemCount = items.length;
-                const itemHTML = `
-                    <div class="accordion-item">
-                        <div class="accordion-title" onclick="toggleAccordion(this)">
-                            <span>${group}</span>
-                            <span>(${itemCount})</span>
-                        </div>
-                        <div class="accordion-content">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>URL</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${items.map(item => `
-                                        <tr>
-                                            <td>${item.name}</td>
-                                            <td><a href="${item.link}" target="_blank">${item.link}</a></td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-                accordionContainer.insertAdjacentHTML("beforeend", itemHTML);
+        function applyInputs() {
+            currentX = document.getElementById("inputX").value;
+            currentY = document.getElementById("inputY").value;
+            if (!currentX || !currentY) {
+                alert("Please enter valid values for XXXX and YYYY.");
+                return;
             }
+            showLoading();
+            setTimeout(() => {
+                parsedData.forEach(item => {
+                    item.link = item.originalLink.replace(
+                        /http:\/\/[^\/]+\/[^\/]+\/[^\/]+/,
+                        `http://84140-agree.oot-mx.me:80/${currentX}/${currentY}`
+                    );
+                });
+                applySearch();
+                hideLoading();
+            }, 1000); // Simulate loading time
         }
 
-        function toggleAccordion(element) {
-            const content = element.nextElementSibling;
-            content.style.display = content.style.display === "block" ? "none" : "block";
+        function applySearch() {
+            const query = document.getElementById("searchBar").value.toLowerCase();
+            filteredData = parsedData.filter(item =>
+                item.name.toLowerCase().includes(query) && item.category === currentCategory
+            );
+            populateTable(filteredData);
         }
+
+        function showLoading() {
+            document.getElementById("notification").textContent = "Loading...";
+            document.getElementById("notification").style.display = "block";
+        }
+
+        function hideLoading() {
+            document.getElementById("notification").style.display = "none";
+        }
+
+        function populateTable(data) {
+            const tableHeader = document.getElementById("tableHeader");
+            const tableBody = document.getElementById("tableBody");
+
+            const headers =
+                currentCategory === "Live" ? liveHeaders : currentCategory === "Movies" ? movieHeaders : seriesHeaders;
+
+            tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
+            tableBody.innerHTML = data
+                .map(
+                    item => `
+                    <tr>
+                        <td>${item.group}</td>
+                        <td>${item.name}</td>
+                        <td><button onclick="copyToClipboard('${item.link}')">Copy URL</button></td>
+                    </tr>
+                `
+                )
+                .join("");
+        }
+
+        function showTable(category) {
+            currentCategory = category;
+            document.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
+            document.getElementById(`btn${category}`).classList.add("active");
+            applySearch();
+        }
+
+        function copyToClipboard(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                const notification = document.getElementById("notification");
+                notification.textContent = "URL copied to clipboard!";
+                notification.style.display = "block";
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 2000);
+            });
+        }
+
+        loadAllFiles();
     </script>
 </body>
 </html>
