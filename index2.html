@@ -72,12 +72,14 @@
         const parsedData = [];  // All data from the file
         let currentX = "";  // Dynamic value for XXXX
         let currentY = "";  // Dynamic value for YYYY
+        let totalRows = 0;
 
         async function loadData() {
             try {
                 const response = await fetch("list.txt");
                 const data = await response.text();
                 parseData(data);
+                // After parsing is complete, populate the accordion
                 populateAccordion(parsedData);
             } catch (error) {
                 console.error("Error loading file:", error);
@@ -86,6 +88,7 @@
 
         function parseData(data) {
             const blocks = data.trim().split("\n\n");
+            totalRows = blocks.length;
             blocks.forEach(block => {
                 const [info, link] = block.split("\n");
                 const groupMatch = info.match(/group-title="([^"]+)"/);
@@ -128,13 +131,13 @@
                 }
             });
 
-            // Re-render the accordion with updated links
+            // Re-render the accordion with updated links in batches
             populateAccordion(parsedData);
         }
 
         function populateAccordion(data) {
             const accordionContainer = document.getElementById("accordionContainer");
-            accordionContainer.innerHTML = "";
+            accordionContainer.innerHTML = "";  // Clear previous content
 
             const groupedData = data.reduce((acc, item) => {
                 if (!acc[item.group]) acc[item.group] = [];
@@ -142,6 +145,7 @@
                 return acc;
             }, {});
 
+            // Render the accordion content
             for (const [group, items] of Object.entries(groupedData)) {
                 const itemCount = items.length;
                 const itemHTML = `
