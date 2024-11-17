@@ -152,20 +152,37 @@
         }
 
        function parseData(data) {
-    const blocks = data.trim().split('\n\n'); // Split into blocks
-    blocks.forEach(block => {
-        const [info, link] = block.split('\n');
-        const groupMatch = info.match(/group-title="([^"]+)"/);
-        const nameMatch = info.match(/tvg-name="([^"]+)"/);
+    const lines = data.trim().split('\n'); // Split into lines
+    lines.forEach((line, index) => {
+        if (line.startsWith("#EXTINF")) {
+            const nextLine = lines[index + 1]; // Get the next line for the URL
+            if (nextLine && nextLine.startsWith("http")) {
+                const groupMatch = line.match(/group-title="([^"]+)"/);
+                const nameMatch = line.match(/tvg-name="([^"]+)"/);
 
-        parsedData.push({
-            group: groupMatch ? groupMatch[1] : "",
-            name: nameMatch ? nameMatch[1] : "",
-            originalLink: link || "",
-            link: link ? link.replace(/http:\/\/[^\/]+\/[^\/]+\/[^\/]+/, `http://84140-agree.oot-mx.me:80/${currentX}/${currentY}`) : ""
-        });
+                const originalLink = nextLine.trim();
+                const updatedLink = originalLink.replace(
+                    /http:\/\/[^\/]+\/[^\/]+\/[^\/]+/,
+                    `http://84140-agree.oot-mx.me:80/${currentX}/${currentY}`
+                );
+
+                // Add to parsedData with category determined by URL
+                parsedData.push({
+                    group: groupMatch ? groupMatch[1] : "Unknown",
+                    name: nameMatch ? nameMatch[1] : "Unknown",
+                    originalLink: originalLink,
+                    link: updatedLink,
+                    category: originalLink.includes("movie")
+                        ? "Movies"
+                        : originalLink.includes("series")
+                        ? "Series"
+                        : "Live"
+                });
+            }
+        }
     });
 }
+
 
         function filterCategory(category) {
             currentCategory = category;
