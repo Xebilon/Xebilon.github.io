@@ -197,26 +197,27 @@
             populateTable(filteredData);
         }
 
-        function populateTable(data) {
-            const tableHeader = document.getElementById("tableHeader");
-            const tableBody = document.getElementById("tableBody");
+     function populateTable(data) {
+    const tableHeader = document.getElementById("tableHeader");
+    const tableBody = document.getElementById("tableBody");
 
-            const headers =
-                currentCategory === "Live" ? liveHeaders : currentCategory === "Movies" ? movieHeaders : seriesHeaders;
+    const headers =
+        currentCategory === "Live" ? liveHeaders : currentCategory === "Movies" ? movieHeaders : seriesHeaders;
 
-            tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
-            tableBody.innerHTML = data
-                .map(
-                    item => ` 
-                    <tr>
-                        <td>${item.group}</td>
-                        <td>${item.name}</td>
-                        <td><button onclick="copyToClipboard('${item.link}')">Copy URL</button></td>
-                    </tr>
-                `
-                )
-                .join("");
-        }
+    tableHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
+    tableBody.innerHTML = data
+        .map(
+            item => ` 
+            <tr>
+                <td>${item.group}</td>
+                <td>${item.name}</td>
+                <td><button onclick="copyToClipboard('${item.link}')">Copy URL</button></td>
+            </tr>
+        `
+        )
+        .join("");
+}
+
 
         function showTable(category) {
             currentCategory = category;
