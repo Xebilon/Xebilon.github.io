@@ -3,35 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic URL Modifier</title>
+    <title>Content Viewer</title>
     <style>
-        /* General styling */
+        /* CSS for styling remains the same */
         body {
             font-family: Arial, sans-serif;
             background-color: #1e1e1e;
             color: #ffffff;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+        }
+        /* Sidebar styles */
+        #sidebar {
+            width: 200px;
+            background-color: #333;
+            padding: 10px;
+        }
+        #sidebar button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            color: #fff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+        }
+        #sidebar button.active {
+            background-color: #555;
+        }
+        /* Main content styles */
+        #content {
+            flex-grow: 1;
             padding: 20px;
         }
-        #controls {
+        #searchBar {
             margin-bottom: 20px;
             display: flex;
-            gap: 10px;
+            align-items: center;
         }
-        input {
-            padding: 10px;
-            border: 1px solid #555;
-            background-color: #333;
-            color: #fff;
-            border-radius: 5px;
-        }
-        #accordionContainer {
+        #searchInput {
             width: 100%;
-            max-height: 500px;
-            overflow-y: auto;
+            padding: 10px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            margin-right: 10px;
         }
+        /* Accordion styles */
         .accordion-item {
             background-color: #222;
             margin-bottom: 10px;
@@ -64,90 +82,71 @@
     </style>
 </head>
 <body>
-    <div id="controls">
-        <input type="text" id="inputX" placeholder="Enter XXXX" oninput="updateUrls()">
-        <input type="text" id="inputY" placeholder="Enter YYYY" oninput="updateUrls()">
+    <div id="sidebar">
+        <button onclick="showTable('Live')" class="active">Channels</button>
+        <button onclick="showTable('Movies')">Movies</button>
+        <button onclick="showTable('Series')">TV Series</button>
     </div>
-    <div id="accordionContainer"></div>
+    <div id="content">
+        <div id="searchBar">
+            <input type="text" id="searchInput" placeholder="Search..." oninput="filterContent()">
+        </div>
+        <div id="accordionContainer"></div>
+    </div>
 
     <script>
-        const parsedData = [];  // All data from the file
-        let currentX = "";  // Dynamic value for XXXX
-        let currentY = "";  // Dynamic value for YYYY
+        const parsedData = {
+            Live: [],
+            Movies: [],
+            Series: []
+        };
+        let currentCategory = "Live";
 
         async function loadData() {
             try {
                 const response = await fetch("list.txt");
                 const data = await response.text();
                 parseData(data);
-                console.log("Total rows parsed: ", parsedData.length);  // Debugging check
-                populateAccordion(parsedData);
+                showTable("Live");  // Load initial view
             } catch (error) {
                 console.error("Error loading file:", error);
             }
         }
 
         function parseData(data) {
-            const lines = data.trim().split("\n");
-            let currentInfo = "";
+            const blocks = data.trim().split("\n\n");
+            blocks.forEach(block => {
+                const [info, link] = block.split("\n");
+                const groupMatch = info.match(/group-title="([^"]+)"/);
+                const nameMatch = info.match(/tvg-name="([^"]+)"/);
 
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
+                const entry = {
+                    group: groupMatch ? groupMatch[1] : "",
+                    name: nameMatch ? nameMatch[1] : "",
+                    link: link || ""
+                };
 
-                // Check if the line is metadata (starts with #EXTINF)
-                if (line.startsWith("#EXTINF")) {
-                    currentInfo = line;
-                }
-                // If the line is a URL (it doesn't start with #EXTINF)
-                else if (line) {
-                    const groupMatch = currentInfo.match(/group-title="([^"]+)"/);
-                    const nameMatch = currentInfo.match(/tvg-name="([^"]+)"/);
-
-                    parsedData.push({
-                        group: groupMatch ? groupMatch[1] : "",
-                        name: nameMatch ? nameMatch[1] : "",
-                        originalLink: line,  // URL line
-                        link: line  // Will be dynamically updated later
-                    });
-                }
-            }
-        }
-
-        function updateUrls() {
-            // Get the current values of XXXX and YYYY from the input boxes
-            currentX = document.getElementById("inputX").value;
-            currentY = document.getElementById("inputY").value;
-
-            // Update all URLs dynamically
-            parsedData.forEach(item => {
-                if (item.originalLink.includes("/movie/")) {
-                    item.group = "Movies";  // Update category if it's a movie
-                    item.link = item.originalLink.replace(
-                        /http:\/\/35502-get\.oot-mx\.me:80\/movie\/[^\/]+\/[^\/]+/,
-                        `http://35502-get.oot-mx.me:80/movie/${currentX}/${currentY}`
-                    );
-                } else if (item.originalLink.includes("/series/")) {
-                    item.group = "Series";  // Update category if it's a series
-                    item.link = item.originalLink.replace(
-                        /http:\/\/35502-get\.oot-mx\.me:80\/series\/[^\/]+\/[^\/]+/,
-                        `http://35502-get.oot-mx.me:80/series/${currentX}/${currentY}`
-                    );
+                if (link.includes("movie")) {
+                    parsedData.Movies.push(entry);
+                } else if (link.includes("series")) {
+                    parsedData.Series.push(entry);
                 } else {
-                    // For other types of URL (like general links)
-                    item.link = item.originalLink.replace(
-                        /http:\/\/35502-get\.oot-mx\.me:80\/[^\/]+\/[^\/]+/,
-                        `http://35502-get.oot-mx.me:80/${currentX}/${currentY}`
-                    );
+                    parsedData.Live.push(entry);
                 }
             });
+        }
 
-            // Re-render the accordion with updated links
-            populateAccordion(parsedData);
+        function filterContent() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filteredData = parsedData[currentCategory].filter(item =>
+                item.name.toLowerCase().includes(query)
+            );
+            populateAccordion(filteredData);
         }
 
         function populateAccordion(data) {
             const accordionContainer = document.getElementById("accordionContainer");
-            accordionContainer.innerHTML = "";  // Clear previous content
+            accordionContainer.innerHTML = "";
 
             const groupedData = data.reduce((acc, item) => {
                 if (!acc[item.group]) acc[item.group] = [];
@@ -155,7 +154,6 @@
                 return acc;
             }, {});
 
-            // Render the accordion content
             for (const [group, items] of Object.entries(groupedData)) {
                 const itemCount = items.length;
                 const itemHTML = `
@@ -191,6 +189,15 @@
         function toggleAccordion(element) {
             const content = element.nextElementSibling;
             content.style.display = content.style.display === "block" ? "none" : "block";
+        }
+
+        function showTable(category) {
+            currentCategory = category;
+            document.querySelectorAll("#sidebar button").forEach(btn => btn.classList.remove("active"));
+            document.querySelector(`#sidebar button:contains("${category}")`).classList.add("active");
+
+            const filteredData = parsedData[category];
+            populateAccordion(filteredData);
         }
 
         loadData();
