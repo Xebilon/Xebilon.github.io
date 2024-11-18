@@ -144,18 +144,23 @@ async function loadData() {
     }
 }
 
-    function updateURLs() {
-    xValue = document.getElementById("inputXXXX").value || xValue;
-    yValue = document.getElementById("inputYYYY").value || yValue;
+  function updateURLs() {
+    const xValue = document.getElementById("inputXXXX").value || "XXXX";
+    const yValue = document.getElementById("inputYYYY").value || "YYYY";
 
-    // Update the URLs for each category
-    for (const category of Object.keys(parsedData)) {
+    // Update only the XXXX and YYYY in the URLs
+    for (const category in parsedData) {
         parsedData[category].forEach(item => {
-            item.link = item.link.replace(/\/[^/]+\/[^/]+\//, `/${xValue}/${yValue}/`);
+            item.link = item.link
+                .replace(/\/XXXX\//g, `/${xValue}/`)
+                .replace(/\/YYYY\//g, `/${yValue}/`);
         });
     }
+
+    // Refresh the currently displayed table
     showTable(currentCategory);
 }
+
 
 
       function populateAccordion(data) {
