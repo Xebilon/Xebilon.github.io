@@ -29,22 +29,38 @@
         #sidebar button.active {
             background-color: #555;
         }
-        #content {
-            flex-grow: 1;
-            padding: 20px;
-        }
-        #inputBar {
-            display: flex;
-            margin-bottom: 10px;
-        }
-        #inputBar input {
-            padding: 10px;
-            margin-right: 10px;
-            background: #444;
-            color: white;
-            border: 1px solid #666;
-            flex: 1;
-        }
+       #content {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+}
+
+#inputBar {
+    display: flex;
+    gap: 10px; /* Space between inputs and button */
+    margin-bottom: 20px; /* Space between input bar and accordion */
+}
+
+#inputBar input {
+    padding: 10px;
+    flex: 1; /* Ensure inputs take equal space */
+    background: #444;
+    color: white;
+    border: 1px solid #666;
+    border-radius: 4px;
+}
+
+#inputBar button {
+    padding: 10px;
+    background: #555;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    flex-shrink: 0; /* Prevent button from resizing */
+}
+
         #accordionContainer {
             margin-top: 20px;
         }
@@ -104,15 +120,18 @@
         <input type="text" id="searchInput" placeholder="Search..." oninput="filterContent()">
     </div>
 </div>
-    <div id="content">
-        <div id="inputBar">
-            <input type="text" id="inputXXXX" placeholder="Enter XXXX">
-            <input type="text" id="inputYYYY" placeholder="Enter YYYY">
-            <button onclick="updateURLs()">Update URLs</button>
-          
-        <div id="accordionContainer"></div>
+  <div id="content">
+    <!-- Input Bar for XXXX and YYYY at the top -->
+    <div id="inputBar">
+        <input type="text" id="inputXXXX" placeholder="Enter XXXX">
+        <input type="text" id="inputYYYY" placeholder="Enter YYYY">
+        <button onclick="updateURLs()">Update URLs</button>
     </div>
-        </div>
+    
+    <!-- Accordion Content -->
+    <div id="accordionContainer"></div>
+</div>
+
 
     <script>
         const parsedData = {
