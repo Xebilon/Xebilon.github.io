@@ -11,6 +11,21 @@
             color: #ffffff;
             display: flex;
         }
+
+        /* Style for logo images */
+.logo-img {
+    width: 50px; /* Default size */
+    height: auto;
+    transition: transform 0.3s ease; /* Smooth zoom effect */
+    border-radius: 5px; /* Optional: rounded corners */
+}
+
+/* Enlarge logo on hover */
+.logo-img:hover {
+    transform: scale(2); /* Zoom effect */
+    z-index: 10; /* Bring to front */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Optional: shadow effect */
+}
         #sidebar {
             width: 200px;
             background-color: #333;
@@ -224,6 +239,7 @@ async function loadData() {
                     <table>
                         <thead>
                             <tr>
+                                <th>Logo</th>
                                 <th>Name</th>
                                 <th>URL</th>
                             </tr>
@@ -231,6 +247,13 @@ async function loadData() {
                         <tbody>
                             ${items.map(item => `
                                 <tr>
+                                    <td>
+                                        ${
+                                            item.logo
+                                                ? `<img src="${item.logo}" alt="${item.name}" class="logo-img">`
+                                                : "No Logo"
+                                        }
+                                    </td>
                                     <td>${item.name}</td>
                                     <td><a href="${item.link}" target="_blank">${item.link}</a></td>
                                 </tr>
