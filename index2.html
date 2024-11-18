@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Viewer</title>
     <style>
-        /* CSS for styling remains the same */
         body {
             font-family: Arial, sans-serif;
             background-color: #1e1e1e;
             color: #ffffff;
             display: flex;
         }
-        /* Sidebar styles */
         #sidebar {
             width: 200px;
             background-color: #333;
@@ -31,15 +29,25 @@
         #sidebar button.active {
             background-color: #555;
         }
-        /* Main content styles */
         #content {
             flex-grow: 1;
             padding: 20px;
         }
+        #inputBar {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        #inputBar input {
+            padding: 10px;
+            margin-right: 10px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            flex: 1;
+        }
         #searchBar {
             margin-bottom: 20px;
             display: flex;
-            align-items: center;
         }
         #searchInput {
             width: 100%;
@@ -47,9 +55,7 @@
             background: #444;
             color: white;
             border: 1px solid #666;
-            margin-right: 10px;
         }
-        /* Accordion styles */
         .accordion-item {
             background-color: #222;
             margin-bottom: 10px;
@@ -88,6 +94,11 @@
         <button onclick="showTable('Series')">TV Series</button>
     </div>
     <div id="content">
+        <div id="inputBar">
+            <input type="text" id="inputXXXX" placeholder="Enter XXXX">
+            <input type="text" id="inputYYYY" placeholder="Enter YYYY">
+            <button onclick="updateURLs()">Update URLs</button>
+        </div>
         <div id="searchBar">
             <input type="text" id="searchInput" placeholder="Search..." oninput="filterContent()">
         </div>
@@ -101,39 +112,53 @@
             Series: []
         };
         let currentCategory = "Live";
+        let xValue = "XXXX";
+        let yValue = "YYYY";
 
         async function loadData() {
             try {
                 const response = await fetch("list.txt");
                 const data = await response.text();
                 parseData(data);
-                showTable("Live");  // Load initial view
+                showTable("Live");
             } catch (error) {
                 console.error("Error loading file:", error);
             }
         }
 
         function parseData(data) {
-            const blocks = data.trim().split("\n\n");
-            blocks.forEach(block => {
-                const [info, link] = block.split("\n");
+            const lines = data.trim().split("\n");
+            lines.forEach(line => {
+                const [info, link] = line.split("\n");
                 const groupMatch = info.match(/group-title="([^"]+)"/);
                 const nameMatch = info.match(/tvg-name="([^"]+)"/);
 
                 const entry = {
-                    group: groupMatch ? groupMatch[1] : "",
-                    name: nameMatch ? nameMatch[1] : "",
+                    group: groupMatch ? groupMatch[1] : "Unknown Group",
+                    name: nameMatch ? nameMatch[1] : "Unknown Name",
                     link: link || ""
                 };
 
-                if (link.includes("movie")) {
+                if (link.includes("/movie/")) {
                     parsedData.Movies.push(entry);
-                } else if (link.includes("series")) {
+                } else if (link.includes("/series/")) {
                     parsedData.Series.push(entry);
                 } else {
                     parsedData.Live.push(entry);
                 }
             });
+        }
+
+        function updateURLs() {
+            xValue = document.getElementById("inputXXXX").value || xValue;
+            yValue = document.getElementById("inputYYYY").value || yValue;
+
+            for (const category of Object.keys(parsedData)) {
+                parsedData[category].forEach(item => {
+                    item.link = item.link.replace(/\/[^/]+\/[^/]+\//, `/${xValue}/${yValue}/`);
+                });
+            }
+            showTable(currentCategory);
         }
 
         function filterContent() {
