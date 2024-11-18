@@ -115,83 +115,91 @@ async function loadData() {
     }
 }
 
-        function parseData(data) {
-            const lines = data.trim().split("\n");
-            lines.forEach(line => {
-                const parts = line.split(",");
-                const groupMatch = line.match(/group-title="([^"]+)"/);
-                const nameMatch = line.match(/tvg-name="([^"]+)"/);
-                const linkMatch = line.match(/http[^\s]+/);
+      function parseData(data) {
+    const lines = data.trim().split("\n");
+    for (let i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith("#EXTINF")) {
+            const info = lines[i];
+            const link = lines[i + 1]; // The URL is on the next line
+            
+            const groupMatch = info.match(/group-title="([^"]+)"/);
+            const nameMatch = info.match(/tvg-name="([^"]+)"/);
+            const logoMatch = info.match(/tvg-logo="([^"]+)"/);
 
-                const entry = {
-                    group: groupMatch ? groupMatch[1] : "Unknown Group",
-                    name: nameMatch ? nameMatch[1] : "Unknown Name",
-                    link: linkMatch ? linkMatch[0] : "#"
-                };
+            const entry = {
+                group: groupMatch ? groupMatch[1] : "Unknown Group",
+                name: nameMatch ? nameMatch[1] : "Unknown Name",
+                logo: logoMatch ? logoMatch[1] : "",
+                link: link || "#"
+            };
 
-                if (entry.link.includes("/movie/")) {
-                    parsedData.Movies.push(entry);
-                } else if (entry.link.includes("/series/")) {
-                    parsedData.Series.push(entry);
-                } else {
-                    parsedData.Live.push(entry);
-                }
-            });
-        }
-
-        function updateURLs() {
-            xValue = document.getElementById("inputXXXX").value || xValue;
-            yValue = document.getElementById("inputYYYY").value || yValue;
-
-            for (const category of Object.keys(parsedData)) {
-                parsedData[category].forEach(item => {
-                    item.link = item.link.replace(/\/[^/]+\/[^/]+\//, `/${xValue}/${yValue}/`);
-                });
-            }
-            showTable(currentCategory);
-        }
-
-        function populateAccordion(data) {
-            const accordionContainer = document.getElementById("accordionContainer");
-            accordionContainer.innerHTML = "";
-
-            const groupedData = data.reduce((acc, item) => {
-                if (!acc[item.group]) acc[item.group] = [];
-                acc[item.group].push(item);
-                return acc;
-            }, {});
-
-            for (const [group, items] of Object.entries(groupedData)) {
-                const itemCount = items.length;
-                const itemHTML = `
-                    <div class="accordion-item">
-                        <div class="accordion-title" onclick="toggleAccordion(this)">
-                            <span>${group}</span>
-                            <span>(${itemCount})</span>
-                        </div>
-                        <div class="accordion-content">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>URL</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${items.map(item => `
-                                        <tr>
-                                            <td>${item.name}</td>
-                                            <td><a href="${item.link}" target="_blank">${item.link}</a></td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-                accordionContainer.insertAdjacentHTML("beforeend", itemHTML);
+            if (entry.link.includes("/movie/")) {
+                parsedData.Movies.push(entry);
+            } else if (entry.link.includes("/series/")) {
+                parsedData.Series.push(entry);
+            } else {
+                parsedData.Live.push(entry);
             }
         }
+    }
+}
+
+    function updateURLs() {
+    xValue = document.getElementById("inputXXXX").value || xValue;
+    yValue = document.getElementById("inputYYYY").value || yValue;
+
+    // Update the URLs for each category
+    for (const category of Object.keys(parsedData)) {
+        parsedData[category].forEach(item => {
+            item.link = item.link.replace(/\/[^/]+\/[^/]+\//, `/${xValue}/${yValue}/`);
+        });
+    }
+    showTable(currentCategory);
+}
+
+
+      function populateAccordion(data) {
+    const accordionContainer = document.getElementById("accordionContainer");
+    accordionContainer.innerHTML = "";
+
+    const groupedData = data.reduce((acc, item) => {
+        if (!acc[item.group]) acc[item.group] = [];
+        acc[item.group].push(item);
+        return acc;
+    }, {});
+
+    for (const [group, items] of Object.entries(groupedData)) {
+        const itemCount = items.length;
+        const itemHTML = `
+            <div class="accordion-item">
+                <div class="accordion-title" onclick="toggleAccordion(this)">
+                    <span>${group}</span>
+                    <span>(${itemCount})</span>
+                </div>
+                <div class="accordion-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>URL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => `
+                                <tr>
+                                    <td>${item.name}</td>
+                                    <td><a href="${item.link}" target="_blank">${item.link}</a></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        accordionContainer.insertAdjacentHTML("beforeend", itemHTML);
+    }
+}
+
 
         function toggleAccordion(element) {
             const content = element.nextElementSibling;
