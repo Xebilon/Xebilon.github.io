@@ -77,6 +77,22 @@
             background-color: #555;
             color: white;
         }
+
+        #searchBarSidebar {
+    margin-top: 20px;
+}
+
+#searchInput {
+    width: calc(100% - 20px); /* Full width with padding */
+    padding: 10px;
+    background: #444;
+    color: white;
+    border: 1px solid #666;
+    margin: 0 10px; /* Space inside the sidebar */
+    border-radius: 4px; /* Rounded corners */
+    box-sizing: border-box; /* Includes padding in width */
+}
+
     </style>
 </head>
 <body>
@@ -84,13 +100,16 @@
         <button onclick="showTable('Live')" class="active">Channels</button>
         <button onclick="showTable('Movies')">Movies</button>
         <button onclick="showTable('Series')">TV Series</button>
+      <div id="searchBarSidebar">
+        <input type="text" id="searchInput" placeholder="Search..." oninput="filterContent()">
     </div>
+</div>
     <div id="content">
         <div id="inputBar">
             <input type="text" id="inputXXXX" placeholder="Enter XXXX">
             <input type="text" id="inputYYYY" placeholder="Enter YYYY">
             <button onclick="updateURLs()">Update URLs</button>
-        </div>
+          
         <div id="accordionContainer"></div>
     </div>
 
@@ -228,6 +247,19 @@ async function loadData() {
     const data = parsedData[category];
     populateAccordion(data);
 }
+
+        function filterContent() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+
+    // Filter the data for the current category
+    const filteredData = parsedData[currentCategory].filter(item =>
+        item.name.toLowerCase().includes(query)
+    );
+
+    // Update the accordion with filtered data
+    populateAccordion(filteredData);
+}
+
 
         loadData();
     </script>
