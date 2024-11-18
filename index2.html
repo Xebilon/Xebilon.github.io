@@ -104,16 +104,16 @@
         let xValue = "XXXX";
         let yValue = "YYYY";
 
-        async function loadData() {
-            try {
-                const response = await fetch("list.txt");
-                const data = await response.text();
-                parseData(data);
-                showTable("Live"); // Display Live category by default
-            } catch (error) {
-                console.error("Error loading file:", error);
-            }
-        }
+async function loadData() {
+    try {
+        const response = await fetch("list.txt");
+        const data = await response.text();
+        parseData(data);
+        showTable("Live"); // Display Live category by default
+    } catch (error) {
+        console.error("Error loading file:", error);
+    }
+}
 
         function parseData(data) {
             const lines = data.trim().split("\n");
@@ -198,14 +198,23 @@
             content.style.display = content.style.display === "block" ? "none" : "block";
         }
 
-        function showTable(category) {
-            currentCategory = category;
-            document.querySelectorAll("#sidebar button").forEach(btn => btn.classList.remove("active"));
-            document.querySelector(`#sidebar button:contains("${category}")`).classList.add("active");
+     function showTable(category) {
+    currentCategory = category;
 
-            const data = parsedData[category];
-            populateAccordion(data);
+    // Remove active class from all buttons
+    document.querySelectorAll("#sidebar button").forEach(btn => btn.classList.remove("active"));
+
+    // Add active class to the button matching the category
+    document.querySelectorAll("#sidebar button").forEach(btn => {
+        if (btn.textContent.trim() === category) {
+            btn.classList.add("active");
         }
+    });
+
+    // Populate the accordion with the selected category
+    const data = parsedData[category];
+    populateAccordion(data);
+}
 
         loadData();
     </script>
