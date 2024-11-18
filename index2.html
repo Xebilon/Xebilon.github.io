@@ -45,16 +45,8 @@
             border: 1px solid #666;
             flex: 1;
         }
-        #searchBar {
-            margin-bottom: 20px;
-            display: flex;
-        }
-        #searchInput {
-            width: 100%;
-            padding: 10px;
-            background: #444;
-            color: white;
-            border: 1px solid #666;
+        #accordionContainer {
+            margin-top: 20px;
         }
         .accordion-item {
             background-color: #222;
@@ -99,9 +91,6 @@
             <input type="text" id="inputYYYY" placeholder="Enter YYYY">
             <button onclick="updateURLs()">Update URLs</button>
         </div>
-        <div id="searchBar">
-            <input type="text" id="searchInput" placeholder="Search..." oninput="filterContent()">
-        </div>
         <div id="accordionContainer"></div>
     </div>
 
@@ -120,7 +109,7 @@
                 const response = await fetch("list.txt");
                 const data = await response.text();
                 parseData(data);
-                showTable("Live");
+                showTable("Live"); // Display Live category by default
             } catch (error) {
                 console.error("Error loading file:", error);
             }
@@ -129,19 +118,20 @@
         function parseData(data) {
             const lines = data.trim().split("\n");
             lines.forEach(line => {
-                const [info, link] = line.split("\n");
-                const groupMatch = info.match(/group-title="([^"]+)"/);
-                const nameMatch = info.match(/tvg-name="([^"]+)"/);
+                const parts = line.split(",");
+                const groupMatch = line.match(/group-title="([^"]+)"/);
+                const nameMatch = line.match(/tvg-name="([^"]+)"/);
+                const linkMatch = line.match(/http[^\s]+/);
 
                 const entry = {
                     group: groupMatch ? groupMatch[1] : "Unknown Group",
                     name: nameMatch ? nameMatch[1] : "Unknown Name",
-                    link: link || ""
+                    link: linkMatch ? linkMatch[0] : "#"
                 };
 
-                if (link.includes("/movie/")) {
+                if (entry.link.includes("/movie/")) {
                     parsedData.Movies.push(entry);
-                } else if (link.includes("/series/")) {
+                } else if (entry.link.includes("/series/")) {
                     parsedData.Series.push(entry);
                 } else {
                     parsedData.Live.push(entry);
@@ -159,14 +149,6 @@
                 });
             }
             showTable(currentCategory);
-        }
-
-        function filterContent() {
-            const query = document.getElementById("searchInput").value.toLowerCase();
-            const filteredData = parsedData[currentCategory].filter(item =>
-                item.name.toLowerCase().includes(query)
-            );
-            populateAccordion(filteredData);
         }
 
         function populateAccordion(data) {
@@ -221,8 +203,8 @@
             document.querySelectorAll("#sidebar button").forEach(btn => btn.classList.remove("active"));
             document.querySelector(`#sidebar button:contains("${category}")`).classList.add("active");
 
-            const filteredData = parsedData[category];
-            populateAccordion(filteredData);
+            const data = parsedData[category];
+            populateAccordion(data);
         }
 
         loadData();
