@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit HTML Layout</title>
+    <title>Edit Layout</title>
     <style>
         #editor {
             border: 1px solid #ccc;
@@ -143,6 +143,42 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadContent(); // Load content from index.html into the editor
         });
+
+
+    // Get all the existing <A> tags
+    const links = document.querySelectorAll("A[href^='#table']");
+    const dropdown = document.getElementById("tableDropdown");
+
+    // Populate the dropdown menu dynamically
+    links.forEach(link => {
+      const option = document.createElement("option");
+      option.value = link.getAttribute("href").substring(1); // Extract table ID from href
+      option.textContent = link.textContent;
+      dropdown.appendChild(option);
+    });
+
+    // Handle dropdown selection
+    dropdown.addEventListener("change", function () {
+      // Hide all sections
+      document.querySelectorAll(".table-section").forEach(section => {
+        section.style.display = "none";
+      });
+
+      // Show the selected section
+      const selectedTable = document.getElementById(this.value);
+      if (selectedTable) {
+        selectedTable.style.display = "block";
+        selectedTable.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+
+    // Optionally, hide all tables initially
+    window.onload = () => {
+      document.querySelectorAll(".table-section").forEach(section => {
+        section.style.display = "none";
+      });
+    };
+        
     </script>
 </body>
 </html>
