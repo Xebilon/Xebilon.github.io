@@ -9,7 +9,6 @@
             border: 1px solid #ccc;
             min-height: 300px;
             padding: 20px;
-            margin-bottom: 20px;
             width: 100%;
             white-space: pre-wrap; /* Preserves line breaks */
         }
@@ -70,22 +69,15 @@
 
     <!-- Editable content area -->
     <div id="editor" contenteditable="true">
-        <h1>Editable Title</h1>
-        <p>This is a paragraph that you can edit directly in this layout.</p>
-        <p>Click here to edit the text and it will update the source code automatically.</p>
-        <a href="https://example.com">This is a link</a>
+        <!-- Content will be injected here from index.html -->
     </div>
 
     <button onclick="saveChanges()">Save Changes</button>
-
-    <h3>Live Preview</h3>
-    <div id="livePreview"></div>
 
     <script>
         // Function to execute commands like bold, italic, etc.
         function execCmd(command, value = null) {
             document.execCommand(command, false, value);
-            updatePreview();  // Update live preview after any change
         }
 
         // Insert image into the editor
@@ -93,7 +85,6 @@
             const url = prompt("Enter the image URL:");
             if (url) {
                 document.execCommand('insertImage', false, url);
-                updatePreview();
             }
         }
 
@@ -111,7 +102,6 @@
             }
             tableHTML += '</table>';
             document.execCommand('insertHTML', false, tableHTML);
-            updatePreview();
         }
 
         // Insert video (embed) into the editor
@@ -120,7 +110,6 @@
             if (url) {
                 const iframe = `<iframe width="560" height="315" src="${url}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                 document.execCommand('insertHTML', false, iframe);
-                updatePreview();
             }
         }
 
@@ -139,21 +128,20 @@
             .then(data => alert('Changes saved successfully!'));
         }
 
-        // Update live preview
-        function updatePreview() {
-            const content = document.getElementById('editor').innerHTML;
-            document.getElementById('livePreview').innerHTML = content;
+        // Load the content of index.html into the editor
+        function loadContent() {
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const editor = document.getElementById('editor');
+                    editor.innerHTML = html;
+                })
+                .catch(error => console.error('Error loading content:', error));
         }
 
-        // Track changes to the editor and update live preview
-        document.getElementById('editor').addEventListener('input', function() {
-            updatePreview();
-        });
-
-        // Initialize the layout and set up the preview
+        // Initialize the layout and load content from index.html
         document.addEventListener('DOMContentLoaded', function() {
-            // You could load initial content here (e.g., from index.html)
-            updatePreview();
+            loadContent(); // Load content from index.html into the editor
         });
     </script>
 </body>
