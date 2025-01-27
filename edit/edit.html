@@ -1,189 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit HTML Layout</title>
-    <style>
-        #editor {
-            border: 1px solid #ccc;
-            min-height: 300px;
-            padding: 20px;
-            width: 100%;
-            white-space: pre-wrap; /* Preserves line breaks */
-        }
-
-        button, select, input[type="color"] {
-            margin-right: 10px;
-        }
-
-        .toolbar {
-            margin-bottom: 10px;
-        }
-
-        /* Ensure dropdown is visible */
-        select#tableDropdown {
-            display: inline-block;
-            width: auto;
-            padding: 5px;
-            margin: 5px 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub-Based Editor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+    }
+    header button {
+      padding: 5px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    header button:hover {
+      background-color: #0056b3;
+    }
+    #editor {
+      padding: 20px;
+      line-height: 1.6;
+      min-height: 80vh;
+      border: 1px solid #ccc;
+      margin: 10px auto;
+      width: 90%;
+      font-size: 16px;
+      background-color: #f9f9f9;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .toolbar button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .toolbar button:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
 </head>
 <body>
-    <h2>Edit Layout</h2>
+  <header>
+    <h1>GitHub Editor</h1>
+    <button onclick="saveToGitHub()">Save Changes</button>
+  </header>
+  
+  <div class="toolbar">
+    <button onclick="document.execCommand('undo')">Undo</button>
+    <button onclick="document.execCommand('bold')">Bold</button>
+    <button onclick="document.execCommand('italic')">Italic</button>
+    <button onclick="document.execCommand('underline')">Underline</button>
+    <button onclick="document.execCommand('justifyLeft')">Left</button>
+    <button onclick="document.execCommand('justifyCenter')">Center</button>
+    <button onclick="document.execCommand('justifyRight')">Right</button>
+  </div>
 
-    <!-- Toolbar with common document editing features -->
-    <div class="toolbar">
-        <!-- Basic Text Formatting -->
-        <button onclick="execCmd('undo')">Undo</button>
-        <button onclick="execCmd('bold')">Bold</button>
-        <button onclick="execCmd('italic')">Italic</button>
-        <button onclick="execCmd('underline')">Underline</button>
-        <button onclick="execCmd('strikethrough')">Strikethrough</button>
+  <div id="editor" contenteditable="true">
+    <!-- Content from index.html will be loaded here -->
+  </div>
 
-        <!-- Text Alignment -->
-        <button onclick="execCmd('justifyLeft')">Align Left</button>
-        <button onclick="execCmd('justifyCenter')">Center</button>
-        <button onclick="execCmd('justifyRight')">Align Right</button>
+  <script>
+    // GitHub configuration (replace with your actual details)
+    const GITHUB_TOKEN = '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'; // Your GitHub token (must have repo scope)
+    const OWNER = 'Xebilon'; // Your GitHub username
+    const REPO = 'xebilon.github.io'; // Your GitHub repository name
+    const FILE_PATH = 'edit/index.html'; // Path to the file to be edited (relative to repo root)
 
-        <!-- Font and Size Selection -->
-        <select onchange="execCmd('fontName', this.value)">
-            <option value="Arial">Arial</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="Georgia">Georgia</option>
-        </select>
-
-        <select onchange="execCmd('fontSize', this.value)">
-            <option value="1">Small</option>
-            <option value="2">Medium</option>
-            <option value="3" selected>Normal</option>
-            <option value="4">Large</option>
-            <option value="5">Very Large</option>
-        </select>
-
-        <!-- Text Color and Background Color -->
-        <input type="color" onchange="execCmd('foreColor', this.value)" title="Text Color">
-        <input type="color" onchange="execCmd('backColor', this.value)" title="Background Color">
-
-        <!-- Insert Image -->
-        <button onclick="insertImage()">Insert Image</button>
-
-        <!-- Insert Table -->
-        <button onclick="insertTable()">Insert Table</button>
-
-        <!-- Insert Media -->
-        <button onclick="insertMedia()">Insert Video</button>
-    </div>
-
-    <!-- Editable content area -->
-    <div id="editor" contenteditable="true">
-        <!-- The content will be injected here from index.html -->
-    </div>
-
-    <!-- Dropdown for table locations -->
-    <select id="tableDropdown">
-        <option value="" selected disabled>Select a location</option>
-    </select>
-
-    <button onclick="saveChanges()">Save Changes</button>
-
-    <script>
-        // Function to execute commands like bold, italic, etc.
-        function execCmd(command, value = null) {
-            document.execCommand(command, false, value);
-        }
-
-        // Insert image into the editor
-        function insertImage() {
-            const url = prompt("Enter the image URL:");
-            if (url) {
-                document.execCommand('insertImage', false, url);
-            }
-        }
-
-        // Insert a table into the editor
-        function insertTable() {
-            const rows = prompt("Enter number of rows:");
-            const cols = prompt("Enter number of columns:");
-            let tableHTML = '<table border="1">';
-            for (let r = 0; r < rows; r++) {
-                tableHTML += '<tr>';
-                for (let c = 0; c < cols; c++) {
-                    tableHTML += '<td>Cell</td>';
-                }
-                tableHTML += '</tr>';
-            }
-            tableHTML += '</table>';
-            document.execCommand('insertHTML', false, tableHTML);
-        }
-
-        // Insert video (embed) into the editor
-        function insertMedia() {
-            const url = prompt("Enter the video URL (YouTube, Vimeo, etc.):");
-            if (url) {
-                const iframe = `<iframe width="560" height="315" src="${url}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                document.execCommand('insertHTML', false, iframe);
-            }
-        }
-
-        // Save changes to index.html
-        function saveChanges() {
-            const content = document.getElementById('editor').innerHTML;
-            // Send content to the server (you can adapt this to your server-side logic)
-            fetch('save.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ content: content })
-            })
-            .then(response => response.json())
-            .then(data => alert('Changes saved successfully!'));
-        }
-
-        // Load the content of index.html into the editor
-        function loadContent() {
-            fetch('index.html')
-                .then(response => response.text())
-                .then(html => {
-                    const editor = document.getElementById('editor');
-                    editor.innerHTML = html;
-
-                    // Populate the dropdown with table locations
-                    const links = document.querySelectorAll("a[href^='#table']");
-                    const dropdown = document.getElementById("tableDropdown");
-
-                    links.forEach(link => {
-                        const option = document.createElement("option");
-                        option.value = link.getAttribute("href").substring(1); // Extract table ID from href
-                        option.textContent = link.textContent;
-                        dropdown.appendChild(option);
-                    });
-
-                    // Handle dropdown selection to show specific sections
-                    dropdown.addEventListener("change", function () {
-                        // Hide all sections
-                        document.querySelectorAll(".table-section").forEach(section => {
-                            section.style.display = "none";
-                        });
-
-                        // Show the selected section
-                        const selectedTable = document.getElementById(this.value);
-                        if (selectedTable) {
-                            selectedTable.style.display = "block";
-                            selectedTable.scrollIntoView({ behavior: "smooth" });
-                        }
-                    });
-                })
-                .catch(error => console.error('Error loading content:', error));
-        }
-
-        // Initialize the layout and load content from index.html
-        document.addEventListener('DOMContentLoaded', function() {
-            loadContent(); // Load content from index.html into the editor
+    // Load the file content from GitHub and display it in the editor
+    async function loadFileFromGitHub() {
+      try {
+        const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
+          headers: {
+            Authorization: `token ${GITHUB_TOKEN}`
+          }
         });
-    </script>
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch file from GitHub');
+        }
+
+        const data = await response.json();
+        const content = atob(data.content); // Decode base64 content
+        document.getElementById('editor').innerHTML = content;
+      } catch (error) {
+        console.error('Error loading file:', error);
+        alert('Failed to load the file from GitHub.');
+      }
+    }
+
+    // Save changes to the file on GitHub
+    async function saveToGitHub() {
+      try {
+        const editorContent = document.getElementById('editor').innerHTML;
+
+        // Fetch the current SHA of the file (required for updating)
+        const shaResponse = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
+          headers: {
+            Authorization: `token ${GITHUB_TOKEN}`
+          }
+        });
+
+        if (!shaResponse.ok) {
+          throw new Error('Failed to fetch file SHA');
+        }
+
+        const shaData = await shaResponse.json();
+        const currentSHA = shaData.sha;
+
+        // Update the file on GitHub
+        const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${GITHUB_TOKEN}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Updated index.html via GitHub Editor',
+            content: btoa(editorContent), // Encode content to base64
+            sha: currentSHA // Provide the current SHA
+          })
+        });
+
+        if (response.ok) {
+          alert('Changes saved successfully!');
+        } else {
+          throw new Error('Failed to save changes to GitHub');
+        }
+      } catch (error) {
+        console.error('Error saving file:', error);
+        alert('Failed to save changes to GitHub.');
+      }
+    }
+
+    // Load the file content when the page loads
+    window.onload = loadFileFromGitHub;
+  </script>
 </body>
 </html>
