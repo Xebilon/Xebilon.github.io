@@ -79,32 +79,32 @@
 
   <script>
     // GitHub configuration (replace with your actual details)
-    const GITHUB_TOKEN = 'sHhqgrfoHnApmdmp0udDFwRQ2IA+TFk3oR92PWG5k3g'; // Your GitHub token (must have repo scope)
+    const GITHUB_TOKEN = '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'; // Your GitHub token (must have repo scope)
     const OWNER = 'Xebilon'; // Your GitHub username
     const REPO = 'Xebilon.github.io'; // Your GitHub repository name
     const FILE_PATH = 'edit/index.html'; // Path to the file to be edited (relative to repo root)
 
     // Load the file content from GitHub and display it in the editor
-    async function loadFileFromGitHub() {
-      try {
-        const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
-          headers: {
-            Authorization: `token ${GITHUB_TOKEN}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch file from GitHub');
-        }
-
-        const data = await response.json();
-        const content = atob(data.content); // Decode base64 content
-        document.getElementById('editor').innerHTML = content;
-      } catch (error) {
-        console.error('Error loading file:', error);
-        alert('Failed to load the file from GitHub.');
+async function loadFileFromGitHub() {
+  try {
+    const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`
       }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch file from GitHub. Status: ${response.status} - ${response.statusText}`);
     }
+
+    const data = await response.json();
+    const content = atob(data.content); // Decode base64 content
+    document.getElementById('editor').innerHTML = content;
+  } catch (error) {
+    console.error('Error loading file:', error);
+    alert(`Failed to load the file from GitHub: ${error.message}`);
+  }
+}
 
     // Save changes to the file on GitHub
     async function saveToGitHub() {
