@@ -21,30 +21,19 @@
             margin-bottom: 10px;
         }
 
-        /* Make sure dropdown is visible */
+        /* Ensure dropdown is visible */
         select#tableDropdown {
             display: inline-block;
             width: auto;
             padding: 5px;
             margin: 5px 0;
         }
-
-        /* Allow for proper centering */
-        .center {
-            text-align: center;
-        }
-
-        /* Fix hidden content to be visible */
-        .hidden-content {
-            display: block !important;  /* Override hidden styles */
-        }
-
     </style>
 </head>
 <body>
     <h2>Edit Layout</h2>
 
-    <!-- Toolbar with common document editing features and advanced styles -->
+    <!-- Toolbar with common document editing features -->
     <div class="toolbar">
         <!-- Basic Text Formatting -->
         <button onclick="execCmd('undo')">Undo</button>
@@ -90,8 +79,13 @@
 
     <!-- Editable content area -->
     <div id="editor" contenteditable="true">
-        <!-- Content will be injected here from index.html -->
+        <!-- The content will be injected here from index.html -->
     </div>
+
+    <!-- Dropdown for table locations -->
+    <select id="tableDropdown">
+        <option value="" selected disabled>Select a location</option>
+    </select>
 
     <button onclick="saveChanges()">Save Changes</button>
 
@@ -157,10 +151,30 @@
                     const editor = document.getElementById('editor');
                     editor.innerHTML = html;
 
-                    // Fix hidden elements and dropdown visibility
-                    const hiddenElements = editor.querySelectorAll('.hidden-content');
-                    hiddenElements.forEach(element => {
-                        element.style.display = 'block';  // Ensure hidden content is visible
+                    // Populate the dropdown with table locations
+                    const links = document.querySelectorAll("a[href^='#table']");
+                    const dropdown = document.getElementById("tableDropdown");
+
+                    links.forEach(link => {
+                        const option = document.createElement("option");
+                        option.value = link.getAttribute("href").substring(1); // Extract table ID from href
+                        option.textContent = link.textContent;
+                        dropdown.appendChild(option);
+                    });
+
+                    // Handle dropdown selection to show specific sections
+                    dropdown.addEventListener("change", function () {
+                        // Hide all sections
+                        document.querySelectorAll(".table-section").forEach(section => {
+                            section.style.display = "none";
+                        });
+
+                        // Show the selected section
+                        const selectedTable = document.getElementById(this.value);
+                        if (selectedTable) {
+                            selectedTable.style.display = "block";
+                            selectedTable.scrollIntoView({ behavior: "smooth" });
+                        }
                     });
                 })
                 .catch(error => console.error('Error loading content:', error));
