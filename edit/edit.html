@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit HTML Layout</title>
+    <style>
+        #editor {
+            border: 1px solid #ccc;
+            min-height: 300px;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            white-space: pre-wrap; /* Preserves line breaks */
+        }
+        button, select, input[type="color"] {
+            margin-right: 10px;
+        }
+        .toolbar {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Edit Layout</h2>
+
+    <!-- Toolbar with common document editing features and advanced styles -->
+    <div class="toolbar">
+        <!-- Basic Text Formatting -->
+        <button onclick="execCmd('undo')">Undo</button>
+        <button onclick="execCmd('bold')">Bold</button>
+        <button onclick="execCmd('italic')">Italic</button>
+        <button onclick="execCmd('underline')">Underline</button>
+        <button onclick="execCmd('strikethrough')">Strikethrough</button>
+
+        <!-- Text Alignment -->
+        <button onclick="execCmd('justifyLeft')">Align Left</button>
+        <button onclick="execCmd('justifyCenter')">Center</button>
+        <button onclick="execCmd('justifyRight')">Align Right</button>
+
+        <!-- Font and Size Selection -->
+        <select onchange="execCmd('fontName', this.value)">
+            <option value="Arial">Arial</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+        </select>
+
+        <select onchange="execCmd('fontSize', this.value)">
+            <option value="1">Small</option>
+            <option value="2">Medium</option>
+            <option value="3" selected>Normal</option>
+            <option value="4">Large</option>
+            <option value="5">Very Large</option>
+        </select>
+
+        <!-- Text Color and Background Color -->
+        <input type="color" onchange="execCmd('foreColor', this.value)" title="Text Color">
+        <input type="color" onchange="execCmd('backColor', this.value)" title="Background Color">
+
+        <!-- Insert Image -->
+        <button onclick="insertImage()">Insert Image</button>
+
+        <!-- Insert Table -->
+        <button onclick="insertTable()">Insert Table</button>
+
+        <!-- Insert Media -->
+        <button onclick="insertMedia()">Insert Video</button>
+    </div>
+
+    <!-- Editable content area -->
+    <div id="editor" contenteditable="true">
+        <h1>Editable Title</h1>
+        <p>This is a paragraph that you can edit directly in this layout.</p>
+        <p>Click here to edit the text and it will update the source code automatically.</p>
+        <a href="https://example.com">This is a link</a>
+    </div>
+
+    <button onclick="saveChanges()">Save Changes</button>
+
+    <h3>Live Preview</h3>
+    <div id="livePreview"></div>
+
+    <script>
+        // Function to execute commands like bold, italic, etc.
+        function execCmd(command, value = null) {
+            document.execCommand(command, false, value);
+            updatePreview();  // Update live preview after any change
+        }
+
+        // Insert image into the editor
+        function insertImage() {
+            const url = prompt("Enter the image URL:");
+            if (url) {
+                document.execCommand('insertImage', false, url);
+                updatePreview();
+            }
+        }
+
+        // Insert a table into the editor
+        function insertTable() {
+            const rows = prompt("Enter number of rows:");
+            const cols = prompt("Enter number of columns:");
+            let tableHTML = '<table border="1">';
+            for (let r = 0; r < rows; r++) {
+                tableHTML += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    tableHTML += '<td>Cell</td>';
+                }
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</table>';
+            document.execCommand('insertHTML', false, tableHTML);
+            updatePreview();
+        }
+
+        // Insert video (embed) into the editor
+        function insertMedia() {
+            const url = prompt("Enter the video URL (YouTube, Vimeo, etc.):");
+            if (url) {
+                const iframe = `<iframe width="560" height="315" src="${url}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                document.execCommand('insertHTML', false, iframe);
+                updatePreview();
+            }
+        }
+
+        // Save changes to index.html
+        function saveChanges() {
+            const content = document.getElementById('editor').innerHTML;
+            // Send content to the server (you can adapt this to your server-side logic)
+            fetch('save.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: content })
+            })
+            .then(response => response.json())
+            .then(data => alert('Changes saved successfully!'));
+        }
+
+        // Update live preview
+        function updatePreview() {
+            const content = document.getElementById('editor').innerHTML;
+            document.getElementById('livePreview').innerHTML = content;
+        }
+
+        // Track changes to the editor and update live preview
+        document.getElementById('editor').addEventListener('input', function() {
+            updatePreview();
+        });
+
+        // Initialize the layout and set up the preview
+        document.addEventListener('DOMContentLoaded', function() {
+            // You could load initial content here (e.g., from index.html)
+            updatePreview();
+        });
+    </script>
+</body>
+</html>
